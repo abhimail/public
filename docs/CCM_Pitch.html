@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CCM: A DPI for Care Coordination</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/league.css">
+  <style>
+    :root {
+      --primary: #1B4F72;
+      --secondary: #2E86C1;
+      --accent: #E67E22;
+      --light: #EBF5FB;
+      --text: #2C3E50;
+      --muted: #95A5A6;
+      --green: #27AE60;
+      --pale: #F8F9FA;
+    }
+    .reveal { font-family: 'Segoe UI', Arial, sans-serif; color: var(--text); }
+    .reveal .slides > section { height: 100%; padding: 0; }
+    .reveal .slides section { text-align: left; }
+
+    /* ---- SLIDE WRAPPER ---- */
+    .slide-body { padding: 36px 52px 28px; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
+
+    /* ---- ACT TAG ---- */
+    .act-tag {
+      font-size: 0.28em; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 6px;
+    }
+
+    /* ---- SLIDE TITLE ---- */
+    .reveal h2 {
+      font-size: 1.15em; font-weight: 700; color: var(--primary);
+      margin: 0 0 18px; padding-bottom: 10px;
+      border-bottom: 3px solid var(--accent);
+      line-height: 1.25;
+    }
+    .reveal h3 { font-size: 0.72em; color: var(--secondary); font-weight: 600; margin: 0 0 8px; }
+
+    /* ---- BODY TEXT ---- */
+    .reveal p { font-size: 0.55em; line-height: 1.6; margin: 0 0 10px; }
+    .reveal ul { margin: 0 0 10px 1.2em; padding: 0; }
+    .reveal ul li { font-size: 0.52em; line-height: 1.65; margin-bottom: 6px; }
+    .reveal ul li strong { color: var(--primary); }
+    .reveal ol { margin: 0 0 10px 1.2em; padding: 0; }
+    .reveal ol li { font-size: 0.52em; line-height: 1.65; margin-bottom: 6px; }
+
+    /* ---- TITLE SLIDE ---- */
+    .title-slide { background: linear-gradient(135deg, #1B4F72 0%, #154360 100%) !important; color: white !important; }
+    .title-slide .slide-body { justify-content: center; }
+    .title-kicker { font-size: 0.32em; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+    .title-main { font-size: 1.9em; font-weight: 800; color: white; line-height: 1.2; margin-bottom: 16px; }
+    .title-sub { font-size: 0.6em; color: #BDE0F5; margin-bottom: 40px; }
+    .title-meta { font-size: 0.38em; color: #7FB3D3; border-top: 1px solid #2E86C155; padding-top: 16px; }
+
+    /* ---- THESIS SLIDE ---- */
+    .thesis-slide { background: var(--light) !important; }
+    .thesis-quote {
+      font-size: 1.05em; font-weight: 600; color: var(--primary);
+      line-height: 1.6; border-left: 6px solid var(--accent);
+      padding: 24px 32px; background: white; border-radius: 0 12px 12px 0;
+      margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    /* ---- STAT CARDS ---- */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; flex: 1; }
+    .stat-card {
+      background: white; border-radius: 12px; padding: 22px 24px;
+      border-left: 5px solid var(--accent); box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .stat-region { font-size: 0.38em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
+    .stat-number { font-size: 1.5em; font-weight: 800; color: var(--accent); line-height: 1; }
+    .stat-desc { font-size: 0.38em; color: var(--text); line-height: 1.5; margin-top: 6px; }
+    .stat-src { font-size: 0.3em; color: var(--muted); font-style: italic; margin-top: 4px; }
+    .root-cause {
+      margin-top: 14px; background: var(--primary); color: white; border-radius: 8px;
+      padding: 10px 18px; font-size: 0.46em; font-weight: 600; text-align: center;
+    }
+
+    /* ---- JOURNEY FLOW ---- */
+    .journey-flow {
+      display: flex; align-items: center; gap: 4px;
+      margin: 20px 0; flex-wrap: nowrap; overflow: hidden;
+    }
+    .journey-node {
+      background: var(--light); border: 2px solid var(--secondary);
+      border-radius: 8px; padding: 10px 12px; font-size: 0.38em;
+      font-weight: 600; color: var(--primary); text-align: center; min-width: 100px;
+      flex-shrink: 0;
+    }
+    .journey-arrow {
+      font-size: 0.55em; color: var(--secondary); flex-shrink: 0; margin: 0 2px;
+    }
+    .journey-gap {
+      background: #FDEBD0; border: 2px dashed var(--accent);
+      border-radius: 8px; padding: 10px 12px; font-size: 0.33em;
+      font-weight: 600; color: var(--accent); text-align: center; min-width: 90px;
+      flex-shrink: 0;
+    }
+    .journey-lost {
+      background: #FDEDEC; border: 2px solid #E74C3C;
+      border-radius: 8px; padding: 10px 12px; font-size: 0.38em;
+      font-weight: 700; color: #C0392B; text-align: center; min-width: 80px;
+      flex-shrink: 0;
+    }
+
+    /* ---- EXISTING LAYERS ---- */
+    .layers-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; flex: 1; }
+    .layer-row {
+      display: flex; align-items: center; background: white;
+      border-radius: 10px; padding: 14px 18px; gap: 16px;
+      border: 1px solid #E8E8E8; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    }
+    .layer-row.missing { border-color: var(--accent); border-width: 2px; background: #FEF9F5; }
+    .layer-icon { font-size: 1em; width: 32px; text-align: center; flex-shrink: 0; }
+    .layer-name { font-size: 0.42em; font-weight: 700; color: var(--primary); width: 160px; flex-shrink: 0; }
+    .layer-check { font-size: 0.4em; color: var(--green); font-weight: 700; width: 28px; flex-shrink: 0; }
+    .layer-miss { font-size: 0.4em; color: var(--accent); font-weight: 700; width: 28px; flex-shrink: 0; }
+    .layer-note { font-size: 0.38em; color: var(--text); flex: 1; line-height: 1.4; }
+
+    /* ---- DPI PRINCIPLES ---- */
+    .principles-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; flex: 1; }
+    .principle-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: white; border-radius: 8px; padding: 12px 16px;
+      border: 1px solid #EAF2FB; box-shadow: 0 1px 5px rgba(0,0,0,0.04);
+    }
+    .principle-num { font-size: 0.9em; color: var(--accent); font-weight: 800; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+    .principle-name { font-size: 0.42em; font-weight: 700; color: var(--primary); }
+    .principle-desc { font-size: 0.36em; color: var(--text); line-height: 1.4; margin-top: 2px; }
+
+    /* ---- STAKEHOLDERS ---- */
+    .stakeholder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; flex: 1; }
+    .stakeholder-card {
+      background: white; border-radius: 10px; padding: 16px 18px;
+      border-top: 4px solid var(--secondary); box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    }
+    .stakeholder-card.accent-top { border-top-color: var(--accent); }
+    .stakeholder-card.green-top { border-top-color: var(--green); }
+    .stakeholder-who { font-size: 0.42em; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .stakeholder-card ul { margin: 0 0 0 1em; padding: 0; }
+    .stakeholder-card ul li { font-size: 0.36em; line-height: 1.55; margin-bottom: 4px; color: var(--text); }
+    .stakeholder-card ul li strong { color: var(--accent); }
+
+    /* ---- TWO MECHANISMS ---- */
+    .mechanisms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; margin-top: 8px; }
+    .mechanism-panel {
+      border-radius: 12px; padding: 20px 22px;
+      display: flex; flex-direction: column;
+    }
+    .mechanism-panel.panel-a { background: #EAF2FB; border: 2px solid var(--secondary); }
+    .mechanism-panel.panel-b { background: #FEF6EC; border: 2px solid var(--accent); }
+    .mechanism-tag { font-size: 0.3em; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+    .panel-a .mechanism-tag { color: var(--secondary); }
+    .panel-b .mechanism-tag { color: var(--accent); }
+    .mechanism-title { font-size: 0.5em; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+    .mechanism-panel ul { margin: 0 0 0 1.1em; padding: 0; flex: 1; }
+    .mechanism-panel ul li { font-size: 0.36em; line-height: 1.6; margin-bottom: 5px; color: var(--text); }
+    .mechanism-key {
+      margin-top: 12px; padding: 8px 12px; border-radius: 6px;
+      font-size: 0.34em; font-weight: 600; line-height: 1.4;
+    }
+    .panel-a .mechanism-key { background: #D6EAF8; color: #1A5276; }
+    .panel-b .mechanism-key { background: #FDEBD0; color: #935116; }
+
+    /* ---- PROTOCOL DESIGN ---- */
+    .protocol-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+    .protocol-col { background: white; border-radius: 10px; padding: 16px 18px; border: 1px solid #EAF2FB; }
+    .protocol-col-title { font-size: 0.38em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--secondary); margin-bottom: 10px; border-bottom: 2px solid var(--light); padding-bottom: 6px; }
+    .protocol-item { margin-bottom: 8px; }
+    .protocol-verb { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.42em; font-weight: 700; color: var(--accent); background: #FEF9F5; padding: 1px 6px; border-radius: 4px; }
+    .protocol-noun { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.42em; font-weight: 700; color: var(--primary); background: var(--light); padding: 1px 6px; border-radius: 4px; }
+    .protocol-def { font-size: 0.34em; color: var(--text); margin-top: 2px; line-height: 1.4; padding-left: 4px; }
+    .uhi-note {
+      grid-column: 1 / -1; background: #F0F3F4; border-radius: 8px;
+      padding: 12px 16px; border-left: 4px solid var(--secondary);
+      font-size: 0.38em; color: var(--text); line-height: 1.5;
+    }
+    .payload-box {
+      grid-column: 1 / -1; background: #1B2631; border-radius: 8px;
+      padding: 10px 16px; font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.32em; color: #ABEBC6; line-height: 1.6;
+    }
+
+    /* ---- OPEN QUESTIONS ---- */
+    .oq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; flex: 1; }
+    .oq-card {
+      background: white; border-radius: 10px; padding: 16px 18px;
+      border-top: 3px solid var(--secondary); box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .oq-topic { font-size: 0.42em; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .oq-card ul { margin: 0 0 0 1em; padding: 0; }
+    .oq-card ul li { font-size: 0.34em; line-height: 1.55; margin-bottom: 5px; color: var(--text); }
+
+    /* ---- ASK SLIDE ---- */
+    .ask-list { display: flex; flex-direction: column; gap: 16px; margin-top: 12px; flex: 1; }
+    .ask-item {
+      display: flex; gap: 18px; align-items: flex-start;
+      background: white; border-radius: 10px; padding: 18px 22px;
+      border: 1px solid #EAF2FB; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .ask-num { font-size: 1.4em; font-weight: 800; color: var(--accent); line-height: 1; flex-shrink: 0; }
+    .ask-title { font-size: 0.48em; font-weight: 700; color: var(--primary); }
+    .ask-desc { font-size: 0.38em; color: var(--text); line-height: 1.4; margin-top: 3px; }
+
+    /* ---- NEXT STEPS ---- */
+    .phases-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 1; margin-top: 8px; }
+    .phase-card {
+      background: white; border-radius: 10px; padding: 16px 14px;
+      display: flex; flex-direction: column; border-top: 4px solid var(--secondary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .phase-label { font-size: 0.3em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); }
+    .phase-title { font-size: 0.44em; font-weight: 700; color: var(--primary); margin: 4px 0 10px; line-height: 1.2; }
+    .phase-timing { font-size: 0.3em; color: var(--secondary); font-weight: 600; margin-bottom: 10px; background: var(--light); padding: 2px 8px; border-radius: 10px; display: inline-block; }
+    .phase-card ul { margin: 0 0 0 1em; padding: 0; flex: 1; }
+    .phase-card ul li { font-size: 0.33em; line-height: 1.55; margin-bottom: 4px; color: var(--text); }
+
+    /* ---- VISION SLIDE ---- */
+    .vision-slide { background: linear-gradient(135deg, #1B4F72 0%, #154360 100%) !important; }
+    .vision-slide .slide-body { justify-content: center; }
+    .vision-quote {
+      font-size: 0.85em; font-weight: 400; color: white; line-height: 1.7;
+      font-style: italic; margin-bottom: 32px; text-align: center;
+      max-width: 900px; margin: 0 auto 32px;
+    }
+    .vision-quote em { font-style: normal; color: #F8C471; font-weight: 600; }
+    .vision-taglines { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+    .vision-tag { font-size: 0.4em; color: #7FB3D3; text-align: center; padding: 0 12px; }
+    .vision-tag.highlight { color: #F8C471; font-weight: 700; }
+
+    /* ---- ARCHITECTURE SLIDE ---- */
+    .arch-slide { background: #F5F6F8 !important; }
+    .arch-slide .slide-body { padding: 20px 28px 16px; }
+    .arch-slide h2 { font-size: 0.9em; margin-bottom: 10px; padding-bottom: 6px; }
+    #arch-iframe {
+      width: 100%; border: none; border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      flex: 1;
+    }
+
+    /* ---- FOUNDATIONS ---- */
+    .foundations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; flex: 1; }
+    .foundation-item {
+      background: white; border-radius: 10px; padding: 18px 20px;
+      border-left: 5px solid var(--secondary); box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+    }
+    .foundation-label { font-size: 0.38em; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--secondary); margin-bottom: 6px; }
+    .foundation-text { font-size: 0.42em; color: var(--text); line-height: 1.5; }
+    .foundation-cta {
+      grid-column: 1 / -1; background: var(--primary); color: white;
+      border-radius: 10px; padding: 14px 22px; text-align: center;
+      font-size: 0.5em; font-weight: 600;
+    }
+
+    /* ---- TRACTABLE ---- */
+    .tractable-list { display: flex; flex-direction: column; gap: 14px; flex: 1; margin-top: 8px; }
+    .tractable-item {
+      display: flex; gap: 16px; align-items: flex-start;
+      background: white; border-radius: 10px; padding: 14px 18px;
+      border: 1px solid #EAF2FB; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    }
+    .tractable-icon { font-size: 1.1em; flex-shrink: 0; }
+    .tractable-title { font-size: 0.44em; font-weight: 700; color: var(--primary); }
+    .tractable-desc { font-size: 0.37em; color: var(--text); line-height: 1.4; margin-top: 2px; }
+
+    /* ---- APPENDIX ---- */
+    .appendix-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.4em; }
+    .appendix-table th { background: var(--primary); color: white; padding: 8px 12px; text-align: left; font-size: 1em; }
+    .appendix-table td { padding: 8px 12px; border-bottom: 1px solid #EAF2FB; }
+    .appendix-table tr:nth-child(even) td { background: var(--light); }
+    .appendix-table code { font-family: 'Consolas', monospace; font-size: 0.95em; }
+
+    /* ---- SLIDE NUMBER ---- */
+    .slide-num {
+      position: absolute; bottom: 14px; right: 20px;
+      font-size: 0.28em; color: var(--muted);
+    }
+
+    /* ---- PROGRESS DOTS ---- */
+    .reveal .progress { height: 4px; background: var(--accent); }
+
+    /* ---- SPEAKER NOTES STYLING ---- */
+    .reveal aside.notes { font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ==================== SLIDE 1: TITLE ==================== -->
+<section class="title-slide">
+  <div class="slide-body">
+    <div class="title-kicker">Digital Public Infrastructure</div>
+    <div class="title-main">Care Coordination<br>as DPI</div>
+    <div class="title-sub">An open, federated DPI for health care coordination</div>
+    <div class="title-meta">
+      For: Dr. Pramod Varma &nbsp;|&nbsp; April 2026 &nbsp;|&nbsp; [Your name / organisation]
+    </div>
+  </div>
+  <aside class="notes">
+    30 seconds. Let the slide land. Frame the meeting upfront: "This is a design conversation, not a pitch — I want your perspective on the architecture and whether this follows the DPI playbook you've built."
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 2: THESIS ==================== -->
+<section class="thesis-slide">
+  <div class="slide-body">
+    <div class="act-tag">The Core Idea</div>
+    <h2>The Missing Layer</h2>
+    <div class="thesis-quote">
+      Health systems everywhere have built digital layers for <strong>identity</strong>, <strong>records</strong>, and <strong>discovery</strong>. The missing layer is <strong>coordination</strong> — ensuring the right care reaches the right patient at the right time, across providers and institutions.
+    </div>
+    <div style="margin-top: 20px; font-size: 0.46em; color: var(--muted); line-height: 1.6;">
+      India has ABHA (identity), ABDM (records), UHI (discovery).<br>
+      Every health system is missing the same fourth layer.
+    </div>
+  </div>
+  <aside class="notes">
+    30 seconds. This slide sets the entire frame. The argument is: DPI for health has been built in layers — identity, records, discovery. Each is necessary but not sufficient. Coordination is the fourth and final layer. Everything else in the presentation supports this.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 3: STATISTICS ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 1 · The Problem</div>
+    <h2>A Global Care Quality Crisis</h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div>
+          <div class="stat-region">Global (LMICs)</div>
+          <div class="stat-number">5M</div>
+          <div class="stat-desc">deaths/year from poor-quality care — exceeding deaths from <em>lack of access</em></div>
+        </div>
+        <div class="stat-src">Lancet Global Health Commission</div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-region">India</div>
+          <div class="stat-number">2.19%</div>
+          <div class="stat-desc">correct treatment rate for common conditions in some states; 180-day avg delay to cancer diagnosis</div>
+        </div>
+        <div class="stat-src">Das et al. (JAMA); NCI India</div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-region">Sub-Saharan Africa</div>
+          <div class="stat-number">&gt;50%</div>
+          <div class="stat-desc">of referrals from primary to secondary care are lost to follow-up</div>
+        </div>
+        <div class="stat-src">WHO; multiple country studies</div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-region">United States</div>
+          <div class="stat-number">$528B</div>
+          <div class="stat-desc">wasted annually on care coordination failures</div>
+        </div>
+        <div class="stat-src">NEJM Catalyst</div>
+      </div>
+    </div>
+    <div class="root-cause">Common root cause: the system fails not at individual points of care, but at the <em>transitions between them</em></div>
+  </div>
+  <aside class="notes">
+    1.5 minutes. Key message: this is a global problem, not an India-specific one. The numbers are striking because they show that the problem is quality and coordination, not just access. Pramod will appreciate the global framing — CCM is a global protocol with India as the proving ground.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 4: REFERRAL BLACK HOLE ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 1 · The Problem</div>
+    <h2>The Referral Black Hole</h2>
+    <p style="font-size:0.5em; color:var(--muted); margin-bottom:4px;">A universal patient journey — this pattern repeats across India, Brazil, USA, and everywhere:</p>
+    <div class="journey-flow">
+      <div class="journey-node">Primary<br>Facility<br><small style="font-size:0.85em;color:var(--muted)">visits</small></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-gap">NO INFO<br>TRAVELS</div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-node">District<br>Hospital<br><small style="font-size:0.85em;color:var(--muted)">re-examined</small></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-gap">REFERRED<br>AGAIN</div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-node">Tertiary<br>Centre<br><small style="font-size:0.85em;color:var(--muted)">referred</small></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-lost">LOST TO<br>FOLLOW-UP</div>
+    </div>
+    <div style="margin-top:20px; display:flex; gap:14px; flex:1;">
+      <div style="flex:1; background:white; border-radius:10px; padding:18px; border-left:4px solid #E74C3C; box-shadow:0 1px 8px rgba(0,0,0,0.05);">
+        <div style="font-size:0.38em;font-weight:700;color:#C0392B;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">The core failure</div>
+        <p style="font-size:0.42em;line-height:1.6;margin:0;">No one in the system knows this patient fell through. There is no feedback loop. Providers don't know the referral failed. Health systems don't know the gap exists.</p>
+      </div>
+      <div style="flex:1; background:white; border-radius:10px; padding:18px; border-left:4px solid var(--secondary); box-shadow:0 1px 8px rgba(0,0,0,0.05);">
+        <div style="font-size:0.38em;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Why technology hasn't fixed this</div>
+        <p style="font-size:0.42em;line-height:1.6;margin:0;">This is not a records gap. Many countries have digital health records. What's missing is the <strong>protocol that connects the actors</strong> — not a record, but a coordination handshake.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1 minute. Make it vivid. The visual journey should tell the story. Key insight: digital records exist but a shared record doesn't trigger action, doesn't close the loop, doesn't know when a patient disappeared. Only a coordination protocol can do that.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 5: WHY EXISTING LAYERS DON'T SOLVE IT ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 1 · The Problem</div>
+    <h2>Why Existing Digital Health Layers Don't Solve This</h2>
+    <p style="font-size:0.46em;color:var(--muted);margin-bottom:8px;font-style:italic;">"We have the pipes — but no traffic rules"</p>
+    <div class="layers-grid">
+      <div class="layer-row">
+        <div class="layer-icon">🪪</div>
+        <div class="layer-name">Health Identity<br><small style="color:var(--muted);font-weight:400;">ABHA / Aadhaar / national IDs</small></div>
+        <div class="layer-check">✓</div>
+        <div class="layer-note">Knowing <em>who</em> the patient is doesn't ensure they get followed up</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-icon">📋</div>
+        <div class="layer-name">Records Exchange<br><small style="color:var(--muted);font-weight:400;">ABDM / HIEs globally</small></div>
+        <div class="layer-check">✓</div>
+        <div class="layer-note">A shared record doesn't trigger action or track whether care was delivered</div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-icon">🔍</div>
+        <div class="layer-name">Provider Discovery<br><small style="color:var(--muted);font-weight:400;">UHI / directories</small></div>
+        <div class="layer-check">✓</div>
+        <div class="layer-note">Finding a provider doesn't mean a coordinated handoff happens</div>
+      </div>
+      <div class="layer-row missing">
+        <div class="layer-icon">🔗</div>
+        <div class="layer-name" style="color:var(--accent);">Coordination<br><small style="font-weight:400;">CCM — the missing layer</small></div>
+        <div class="layer-miss">✗</div>
+        <div class="layer-note" style="color:var(--accent);font-weight:600;">Care plans, referral lifecycle tracking, loss-to-follow-up detection, population observation — <em>this doesn't exist yet</em></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1.5 minutes. This slide is the logical proof: each DPI layer solves a real problem, but none closes the loop on whether care was actually coordinated and delivered. CCM is the missing fourth layer. Important for Pramod: ABDM, UHI, ABHA are not being replaced — CCM builds on top of them.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 6: WHAT IS COORDINATION ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 2 · The Opportunity</div>
+    <h2>What Is Care Coordination, Really?</h2>
+    <p style="font-size:0.46em;color:var(--muted);margin-bottom:16px;">Not a platform. Not a dashboard. A <strong>protocol</strong> that enables:</p>
+    <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
+      <div class="tractable-item">
+        <div class="tractable-icon">📌</div>
+        <div><div class="tractable-title">Shared care plans across provider boundaries</div><div class="tractable-desc">A versioned, multi-party care plan that follows the patient — not locked to any single facility's system</div></div>
+      </div>
+      <div class="tractable-item">
+        <div class="tractable-icon">🔄</div>
+        <div><div class="tractable-title">Referral lifecycle tracking</div><div class="tractable-desc">Initiated → accepted → completed → outcomes reported. A closed loop, not an open-ended handoff.</div></div>
+      </div>
+      <div class="tractable-item">
+        <div class="tractable-icon">🛡️</div>
+        <div><div class="tractable-title">Loss-to-follow-up prevention</div><div class="tractable-desc">Every care transition is visible. Gaps surface automatically rather than silently — the system knows when a patient fell through.</div></div>
+      </div>
+      <div class="tractable-item">
+        <div class="tractable-icon">📊</div>
+        <div><div class="tractable-title">Population-level observation without centralising clinical data</div><div class="tractable-desc">Coordination metadata — not clinical records — flows to the centre. Population dashboards without a central clinical database.</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1 minute. This is the definitional slide. The key rhetorical move: "not a platform, not a dashboard" — because Pramod will have seen too many "health platforms" that don't work. CCM is a protocol, like UPI or Beckn — infrastructure, not application.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 7: DPI DESIGN PHILOSOPHY ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 2 · The Opportunity</div>
+    <h2>The DPI Design Philosophy</h2>
+    <p style="font-size:0.44em;color:var(--muted);margin-bottom:12px;">CCM follows the same design principles that made Aadhaar, UPI, Beckn, DEPA, and Estonia's X-Road work at population scale:</p>
+    <div class="principles-grid">
+      <div class="principle-item">
+        <div class="principle-num">①</div>
+        <div><div class="principle-name">Thin centre, thick edges</div><div class="principle-desc">The central layer coordinates — it doesn't accumulate data or make decisions. Edge systems retain full autonomy.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">②</div>
+        <div><div class="principle-name">Open protocol specifications</div><div class="principle-desc">Anyone who speaks the protocol can participate. No vendor lock-in, no single platform dependency.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">③</div>
+        <div><div class="principle-name">Federated trust</div><div class="principle-desc">Trust via cryptographic attestation — not by a central authority holding all information.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">④</div>
+        <div><div class="principle-name">Data stays at the edges</div><div class="principle-desc">The centre sees only coordination metadata — never clinical records, never patient data.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">⑤</div>
+        <div><div class="principle-name">Progressive enhancement</div><div class="principle-desc">Works at the lowest common denominator. Gets richer as participants mature — no big-bang required.</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1.5 minutes. With Pramod: don't over-explain these principles — he designed most of them himself. Instead, frame it as: "We've taken the same constraints that made your DPI work and asked: what does this look like for health coordination?" The key insight is that CCM is applying a proven pattern to a new domain — not inventing new principles.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 8: STAKEHOLDERS ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 2 · The Opportunity</div>
+    <h2>Stakeholders &amp; Benefits</h2>
+    <div class="stakeholder-grid">
+      <div class="stakeholder-card accent-top">
+        <div class="stakeholder-who">👤 Patients</div>
+        <ul>
+          <li>Care plans that <strong>follow them</strong> across providers</li>
+          <li><strong>Loss to follow-up becomes visible:</strong> if a patient is referred and never arrives, the system knows — today, nobody knows</li>
+          <li>Continuity across public, private, and community care</li>
+        </ul>
+      </div>
+      <div class="stakeholder-card">
+        <div class="stakeholder-who">🏥 Providers</div>
+        <ul>
+          <li>Closed referral loops — know whether patients received care</li>
+          <li>Decision support at the edge, not mandated from centre</li>
+          <li>Reduced redundant investigations</li>
+        </ul>
+      </div>
+      <div class="stakeholder-card green-top">
+        <div class="stakeholder-who">🏛️ Health Authorities</div>
+        <ul>
+          <li>Population dashboards <strong>without a central clinical database</strong></li>
+          <li>Coordination quality metrics: referral completion rates, care plan adherence</li>
+          <li>Policy informed by real coordination data</li>
+        </ul>
+      </div>
+      <div class="stakeholder-card">
+        <div class="stakeholder-who">🏢 Private Sector &amp; Payers</div>
+        <ul>
+          <li>Network effects: referrals flow to protocol-compliant providers</li>
+          <li>Interop without platform dependence</li>
+          <li>Coordination data for care continuity, not just episodic claims</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1.5 minutes. The loss-to-follow-up point under Patients is emotionally resonant — make it vivid: "Today, a patient can disappear between facilities and no one in the system knows. With CCM, that gap is structurally visible." This is also the slide where you preemptively answer "what's the incentive for private hospitals" — network effects and interop without platform lock-in.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 9: DESIGN PRINCIPLES ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 3 · Design Principles</div>
+    <h2>Eight Design Principles</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex:1;margin-top:8px;">
+      <div>
+        <h3 style="color:var(--secondary);font-size:0.42em;border-bottom:2px solid var(--light);padding-bottom:6px;margin-bottom:10px;">🔒 Data Sovereignty</h3>
+        <div class="principle-item" style="margin-bottom:8px;">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">1</div>
+          <div><div class="principle-name">Clinical data stays at edges</div><div class="principle-desc">Centre never sees patient records</div></div>
+        </div>
+        <div class="principle-item" style="margin-bottom:8px;">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">2</div>
+          <div><div class="principle-name">Metadata-only central visibility</div><div class="principle-desc">Only events, timestamps, provider IDs — and even this is policy-governed</div></div>
+        </div>
+        <div class="principle-item">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">3</div>
+          <div><div class="principle-name">Counter-party deviation reporting</div><div class="principle-desc">Both sides attest independently; only discrepancies escalate</div></div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color:var(--secondary);font-size:0.42em;border-bottom:2px solid var(--light);padding-bottom:6px;margin-bottom:10px;">⚡ System Resilience</h3>
+        <div class="principle-item" style="margin-bottom:8px;">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">4</div>
+          <div><div class="principle-name">Treatment never blocked</div><div class="principle-desc">If the coordination layer is down, care continues; events sync later</div></div>
+        </div>
+        <div class="principle-item" style="margin-bottom:8px;">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">5</div>
+          <div><div class="principle-name">Graceful degradation</div><div class="principle-desc">Works on SMS where there's no broadband; rich client where there is</div></div>
+        </div>
+        <div class="principle-item">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">6</div>
+          <div><div class="principle-name">Progressive enhancement</div><div class="principle-desc">Start with referral tracking; layer on analytics, AI, dashboards</div></div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color:var(--secondary);font-size:0.42em;border-bottom:2px solid var(--light);padding-bottom:6px;margin-bottom:10px;">🏛️ Governance Philosophy</h3>
+        <div class="principle-item" style="margin-bottom:8px;">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">7</div>
+          <div><div class="principle-name">Centre observes, never orchestrates</div><div class="principle-desc">No central body can dictate clinical decisions</div></div>
+        </div>
+        <div class="principle-item">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">8</div>
+          <div><div class="principle-name">Edge intelligence</div><div class="principle-desc">Clinical logic, care plans, decision support — all at the provider edge</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    2 minutes. Present these as design constraints, not feature list. Key framing for Pramod: "These are the same constraints that made UPI and Aadhaar work — applied to the health coordination domain. Principle 3 (counter-party deviation reporting) is the novel one — it's how you get a trust mesh without a central authority." Principle 4 is important for low-resource settings: clinical care is never gated on the coordination layer being up.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 10: ARCHITECTURE (INTERACTIVE) ==================== -->
+<section class="arch-slide">
+  <div class="slide-body">
+    <div class="act-tag">Act 4 · Architecture</div>
+    <h2>Four-Layer Federated Architecture &nbsp;<span style="font-size:0.6em;color:var(--muted);font-weight:400;">— click any component to explore</span></h2>
+    <iframe id="arch-iframe" style="flex:1;min-height:0;"></iframe>
+  </div>
+  <aside class="notes">
+    2 minutes. Walk through the layers top-to-bottom: Edge Systems (where care happens — existing systems, CCM doesn't replace them) → Edge Adapter (thin gateway, SDK or service, 4 modules) → Coordination Protocols as the substrate connecting everything → CCM: Observation & Policy (metadata only, population dashboards) → Governance (protocol steward, neutral). Key: "The blue background is the protocol substrate — it's not a peer layer, it's the environment that connects the other layers." Let Pramod click around if he wants. The interactive diagram was built for exactly this kind of deep-dive conversation.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 11: TWO REPORTING MECHANISMS ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 4 · Architecture</div>
+    <h2>Two Reporting Mechanisms</h2>
+    <div class="mechanisms-grid">
+      <div class="mechanism-panel panel-a">
+        <div class="mechanism-tag">Trust Mechanism</div>
+        <div class="mechanism-title">1. Counter-Party Deviation Reporting</div>
+        <ul>
+          <li>Both sides of a care transition independently attest via <strong>signed hashes</strong></li>
+          <li>Normal case is <strong>silent</strong> — agreement is the default, nothing flows centrally</li>
+          <li>Only when a counter-party <strong>flags a deviation</strong> does a signal reach the central layer</li>
+          <li><strong>Loss-to-follow-up detection is free</strong> — a referral with no counter-party confirmation is a patient who fell through</li>
+        </ul>
+        <div class="mechanism-key">The absence of a deviation signal is itself proof that coordination is working.</div>
+      </div>
+      <div class="mechanism-panel panel-b">
+        <div class="mechanism-tag">Observation Stream</div>
+        <div class="mechanism-title">2. Policy-Based Event Reporting</div>
+        <ul>
+          <li>Edge adapter consults a <strong>reporting policy</strong> (pushed from governance) determining what metadata flows centrally</li>
+          <li>A <strong>spectrum</strong>, not binary:<br>
+            <em>→ Aggregates only</em> (weekly referral counts)<br>
+            <em>→ Individual events for notifiable diseases</em> + aggregates for routine care<br>
+            <em>→ Full instrumentation</em> for pilot sites
+          </li>
+          <li>Low-maturity regions start at aggregate end; progress as capacity grows</li>
+        </ul>
+        <div class="mechanism-key">The centre never sees clinical content — only event types, provider IDs, timestamps, hashed plan references.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    2 minutes. This slide is architecturally important — distinguish the two mechanisms clearly. Mechanism 1 is about trust: it's exception-driven and inherently lightweight. Mechanism 2 is about observation: it's configurable and policy-governed. The key design insight is that these are separate concerns, handled separately. Pramod may ask: "How does L3 compute population dashboards if it only sees deviations?" — that's exactly why they're separate: deviations are for trust, event reporting is for observation.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 12: PROTOCOL DESIGN ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 4 · Architecture</div>
+    <h2>CCM Protocol Design: Verbs &amp; Nouns</h2>
+    <div class="protocol-cols">
+      <div class="protocol-col">
+        <div class="protocol-col-title">Coordination Verbs &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.85em;">(generalised — applicable beyond health)</span></div>
+        <div class="protocol-item"><span class="protocol-verb">transition</span><div class="protocol-def">Initiate a handoff of responsibility between parties</div></div>
+        <div class="protocol-item"><span class="protocol-verb">accept</span> / <span class="protocol-verb">decline</span><div class="protocol-def">Receiving party responds to a transition</div></div>
+        <div class="protocol-item"><span class="protocol-verb">attest</span><div class="protocol-def">Cryptographically sign that a coordination event occurred</div></div>
+        <div class="protocol-item"><span class="protocol-verb">flag-deviation</span><div class="protocol-def">Counter-party reports a discrepancy</div></div>
+        <div class="protocol-item"><span class="protocol-verb">sync-plan</span><div class="protocol-def">Share/update a shared plan across party boundaries</div></div>
+        <div class="protocol-item"><span class="protocol-verb">report</span><div class="protocol-def">Emit a metadata event per reporting policy</div></div>
+        <div class="protocol-item"><span class="protocol-verb">update-policy</span><div class="protocol-def">Governance pushes new configuration to edges</div></div>
+      </div>
+      <div class="protocol-col">
+        <div class="protocol-col-title">Health Coordination Nouns &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.85em;">(domain-specific resources)</span></div>
+        <div class="protocol-item"><span class="protocol-noun">CareTransition</span><div class="protocol-def">Referral or handoff; composes FHIR ServiceRequest</div></div>
+        <div class="protocol-item"><span class="protocol-noun">CarePlan</span><div class="protocol-def">Shared versioned plan; composes FHIR CarePlan (hashed ref only flows centrally)</div></div>
+        <div class="protocol-item"><span class="protocol-noun">CareAttestation</span><div class="protocol-def">Signed hash of care event; composes FHIR Encounter hash + credentials</div></div>
+        <div class="protocol-item"><span class="protocol-noun">CareDeviationReport</span><div class="protocol-def">Flagged discrepancy between counter-parties</div></div>
+        <div class="protocol-item"><span class="protocol-noun">ReportingPolicy</span><div class="protocol-def">Configuration governing what metadata edges emit</div></div>
+        <div class="protocol-item"><span class="protocol-noun">CareCoordinationEvent</span><div class="protocol-def">Observation signal; constrained FHIR profile, clinical content stripped</div></div>
+      </div>
+      <div class="uhi-note">
+        <strong>Relationship to UHI / Beckn:</strong> CCM leverages UHI (built on Beckn) as the <strong>discovery and appointment layer</strong> — finding providers, booking referral slots, confirming availability. CCM adds what UHI doesn't cover: <strong>longitudinal coordination</strong> — care plan sync, counter-party attestation, deviation reporting, policy-governed observation. <em>UHI handles "find and book"; CCM handles "coordinate, attest, and observe over time."</em> They are complementary layers.
+      </div>
+      <div class="payload-box">
+        {verb: "transition", noun: {type: "CareTransition", source: "facility-A", target: "facility-B",<br>
+        &nbsp;&nbsp;priority: "urgent", carePlanRef: "hash:abc123", fhirBinding: "ServiceRequest"},<br>
+        &nbsp;&nbsp;attestation: {signer: "facility-A", hash: "sig:...", timestamp: "..."}}
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1.5 minutes. The key insight to surface for Pramod: verbs are generalised (like HTTP GET/POST/PUT) — the same grammar could serve coordination in other domains. Nouns are health-specific — FHIR structures underneath. This is proper protocol design: domain-neutral grammar, domain-specific resources. The UHI note is important: don't frame CCM as replacing or competing with Beckn/UHI — they're complementary layers. Pramod built Beckn; he'll appreciate CCM building on top of it rather than around it. See Appendix A for the full generalised protocol model.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 13: FOUNDATIONS ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 5 · Why Now</div>
+    <h2>The Foundations Are Ready</h2>
+    <div class="foundations-grid">
+      <div class="foundation-item">
+        <div class="foundation-label">🇮🇳 India</div>
+        <div class="foundation-text">640M+ ABHA IDs · HIE-CM consent framework operational · UHI discovery live · Hospital &amp; lab integrations growing. Identity and records layers exist.</div>
+      </div>
+      <div class="foundation-item" style="border-left-color:var(--green);">
+        <div class="foundation-label" style="color:var(--green);">🌍 Globally</div>
+        <div class="foundation-text">FHIR adoption accelerating · WHO SMART Guidelines digitised · Increasing political will for health interoperability across low, middle, and high-income countries.</div>
+      </div>
+      <div class="foundation-item" style="border-left-color:var(--accent);">
+        <div class="foundation-label" style="color:var(--accent);">✅ DPI Pattern Proven</div>
+        <div class="foundation-text">Payments (UPI) · Commerce (Beckn/ONDC) · Data consent (DEPA) · Credit (OCEN). The thin-protocol, thick-edge playbook works. Health coordination is the next domain.</div>
+      </div>
+      <div class="foundation-item" style="border-left-color:var(--secondary);">
+        <div class="foundation-label">🏗️ Protocol-First Precedent</div>
+        <div class="foundation-text">India has shown that specifying the protocol first — letting implementations emerge — scales better than building a central platform. Same approach here.</div>
+      </div>
+      <div class="foundation-cta">The coordination layer is the logical next step.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    1 minute. Quick slide — these are enabling conditions, not the core argument. Key: don't overclaim ABDM readiness. Pramod knows the real state. Frame India as a proving ground that's further along than most countries, not as a solved problem. The DPI pattern proven point is the strongest — he's seen it work across domains.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 14: TRACTABLE ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 5 · Why Now</div>
+    <h2>What Makes This Tractable</h2>
+    <div class="tractable-list">
+      <div class="tractable-item">
+        <div class="tractable-icon">🎯</div>
+        <div><div class="tractable-title">Start small</div><div class="tractable-desc">MVP is referral lifecycle tracking in one geography — a handful of primary facilities + one referral hospital. Prove the protocol before expanding.</div></div>
+      </div>
+      <div class="tractable-item">
+        <div class="tractable-icon">🔌</div>
+        <div><div class="tractable-title">Edge adapter is lightweight</div><div class="tractable-desc">~4 API endpoints. Can wrap existing HMIS and EMR systems. No rip-and-replace. Similar to the SDK pattern that worked for Beckn participants.</div></div>
+      </div>
+      <div class="tractable-item">
+        <div class="tractable-icon">📜</div>
+        <div><div class="tractable-title">Protocols before platforms</div><div class="tractable-desc">Specify the protocol first. Let implementations emerge. Like HTTP before web browsers — the spec enables the ecosystem.</div></div>
+      </div>
+      <div class="tractable-item">
+        <div class="tractable-icon">📈</div>
+        <div><div class="tractable-title">Progressive enhancement</div><div class="tractable-desc"><strong>Day 1:</strong> referral tracking + deviation alerts &nbsp;·&nbsp; <strong>Month 6:</strong> care plan sync &nbsp;·&nbsp; <strong>Year 1:</strong> population dashboards &nbsp;·&nbsp; <strong>Year 2:</strong> AI-assisted coordination</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1 minute. Address the "this sounds hard" objection before Pramod raises it. The lightweight edge adapter point is important — the barrier to participation needs to be low. The protocols-before-platforms framing is specifically for Pramod: he knows this approach works from Beckn. The progressive enhancement timeline shows you're thinking in phases, not big-bang.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 15: OPEN QUESTIONS ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 5 · Open Questions</div>
+    <h2>Open Questions</h2>
+    <p style="font-size:0.44em;color:var(--muted);margin-bottom:12px;font-style:italic;">These are the unresolved design decisions — this is where your expertise is most valuable:</p>
+    <div class="oq-grid">
+      <div class="oq-card">
+        <div class="oq-topic">🏛️ Governance</div>
+        <ul>
+          <li>Who stewards the protocol? Government body (NHA), independent foundation (like NPCI/Beckn), or hybrid?</li>
+          <li>How does protocol evolution work — who proposes, who ratifies, how are breaking changes handled?</li>
+        </ul>
+      </div>
+      <div class="oq-card" style="border-top-color:var(--accent);">
+        <div class="oq-topic">🔐 Trust &amp; Consent</div>
+        <ul>
+          <li>How does CCM's coordination consent relate to ABDM's HIE-CM consent framework? New artefact or extension?</li>
+          <li>Minimum trust requirement for a facility to join — self-attestation, certification, or peer vouching?</li>
+        </ul>
+      </div>
+      <div class="oq-card" style="border-top-color:var(--green);">
+        <div class="oq-topic">📡 Reporting Policy</div>
+        <ul>
+          <li>Who sets the reporting policy dial — central governance, state missions, or negotiated?</li>
+          <li>How to handle disagreements (state wants full event reporting; providers push back on burden)?</li>
+        </ul>
+      </div>
+      <div class="oq-card" style="border-top-color:var(--primary);">
+        <div class="oq-topic">💰 Sustainability</div>
+        <ul>
+          <li>Funding model — government budget, transaction-based, donor-funded foundation?</li>
+          <li>How to prevent capture by a single large vendor or platform?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1 minute. Don't read every bullet — this is a "surface and invite" slide. Briefly name each quadrant and say: "These are the areas where we don't have clean answers yet. I'd love your perspective on governance especially — you've navigated the NHA/NPCI/Beckn Foundation question before." The slide transforms the meeting from "approve our design" to "help us think through these."
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 16: ASK ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 5 · The Ask</div>
+    <h2>What We're Asking For</h2>
+    <div class="ask-list">
+      <div class="ask-item">
+        <div class="ask-num">1</div>
+        <div><div class="ask-title">Architecture review</div><div class="ask-desc">Stress-test the federated design, trust model, and two-stream reporting mechanism. Where are the weak points?</div></div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">2</div>
+        <div><div class="ask-title">DPI pattern validation</div><div class="ask-desc">Does this follow the design philosophy that works at scale? Are there DPI patterns we've missed or misapplied?</div></div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">3</div>
+        <div><div class="ask-title">Strategic guidance</div><div class="ask-desc">How should CCM position within the global health DPI landscape? Relationship to WHO, NHA, existing DPI stewards?</div></div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">4</div>
+        <div><div class="ask-title">Network</div><div class="ask-desc">Connections to the right institutional champions — government, multilaterals, DPI foundations.</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    30 seconds. Be brief and direct. The ask is concrete — not "support us" or "fund us" but four specific things Pramod can actually do. The architecture review and DPI pattern validation are the most important ones for this meeting.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 17: NEXT STEPS ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 5 · Path Forward</div>
+    <h2>Proposed Next Steps</h2>
+    <div class="phases-grid">
+      <div class="phase-card">
+        <div class="phase-label">Phase 0</div>
+        <div class="phase-title">Protocol Specification</div>
+        <div class="phase-timing">Months 1–3</div>
+        <ul>
+          <li>Formalise CCM protocol spec — verbs, nouns, event schemas, attestation format</li>
+          <li>Publish as open specification</li>
+          <li>Architecture review with DPI experts <em>(this conversation is step one)</em></li>
+        </ul>
+      </div>
+      <div class="phase-card" style="border-top-color:var(--accent);">
+        <div class="phase-label">Phase 1</div>
+        <div class="phase-title">Reference Implementation + Pilot</div>
+        <div class="phase-timing" style="background:#FEF6EC;color:#935116;">Months 3–9</div>
+        <ul>
+          <li>Open-source reference Edge Adapter</li>
+          <li>Deploy in one geography: ~5 PHCs + 1 district hospital</li>
+          <li>Scope: referral lifecycle + deviation reporting only</li>
+          <li>Measure: referral completion rates, loss-to-follow-up reduction</li>
+        </ul>
+      </div>
+      <div class="phase-card" style="border-top-color:var(--green);">
+        <div class="phase-label">Phase 2</div>
+        <div class="phase-title">Protocol Expansion</div>
+        <div class="phase-timing" style="background:#EAFAF1;color:#1E8449;">Months 9–18</div>
+        <ul>
+          <li>Add care plan sync, policy-based event reporting</li>
+          <li>Expand to additional geographies / programmes (TB, maternal health)</li>
+          <li>Stand up observation layer — population dashboards from metadata</li>
+        </ul>
+      </div>
+      <div class="phase-card" style="border-top-color:var(--primary);">
+        <div class="phase-label">Phase 3</div>
+        <div class="phase-title">Ecosystem</div>
+        <div class="phase-timing" style="background:var(--light);color:var(--primary);">18+ months</div>
+        <ul>
+          <li>Multiple Edge Adapter implementations by different vendors</li>
+          <li>Governance body formalised</li>
+          <li>AI-assisted coordination (care plan recommendations, anomaly detection)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1 minute. This turns the conversation from "interesting idea" to "concrete plan." Phase 0 starts immediately — and this meeting is literally step one of Phase 0. The pilot scope in Phase 1 is deliberately small: prove the protocol works before scaling.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 18: VISION ==================== -->
+<section class="vision-slide">
+  <div class="slide-body">
+    <div class="vision-quote">
+      "Every patient, anywhere in the world, no matter where they enter the health system, is on a <em>care plan that follows them</em> — not because a central database tracks them, but because an <em>open protocol coordinates the providers</em> around them."
+    </div>
+    <div class="vision-taglines">
+      <div class="vision-tag">The world built DPI for payments.</div>
+      <div class="vision-tag">For identity.</div>
+      <div class="vision-tag">For commerce.</div>
+      <div class="vision-tag">For data consent.</div>
+      <div class="vision-tag highlight">Health coordination is the next frontier.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    1 minute. Let the quote land. Don't rush. This is the emotional close — after all the architecture and protocols, return to the human reason this matters. The quote encapsulates the design philosophy: the patient is coordinated around, not tracked centrally.
+  </aside>
+</section>
+
+<!-- ==================== APPENDIX A ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Appendix A</div>
+    <h2>Generalised Protocol Model</h2>
+    <p style="font-size:0.42em;color:var(--muted);margin-bottom:10px;">The coordination verbs are domain-neutral. Health specificity lives in the nouns. The binding model shows how health nouns compose generic coordination primitives.</p>
+    <table class="appendix-table">
+      <tr>
+        <th>Generic Noun (Protocol Core)</th>
+        <th>Health Binding</th>
+        <th>Underlying Data Structure</th>
+      </tr>
+      <tr><td><code>Transition</code></td><td><code>CareTransition</code></td><td>FHIR ServiceRequest, referral metadata</td></tr>
+      <tr><td><code>Plan</code></td><td><code>CarePlan</code></td><td>FHIR CarePlan, care team references</td></tr>
+      <tr><td><code>Attestation</code></td><td><code>CareAttestation</code></td><td>FHIR Encounter summary hash, provider credentials</td></tr>
+      <tr><td><code>Deviation</code></td><td><code>CareDeviationReport</code></td><td>Referral mismatch, follow-up failure metadata</td></tr>
+      <tr><td><code>MetadataEvent</code></td><td><code>CareCoordinationEvent</code></td><td>Constrained FHIR profiles (clinical content stripped)</td></tr>
+    </table>
+    <div style="margin-top:14px;background:var(--light);border-radius:8px;padding:14px 16px;font-size:0.38em;line-height:1.6;">
+      <strong>Why this matters:</strong> The protocol core (verbs + generic nouns + trust model + reporting policy mechanism) is reusable. The same grammar could serve coordination in education (student transitions), social services (case handoffs), or supply chain (logistics handoffs). Health is the first domain binding — not a near-term commitment, but a deliberate architectural affordance.<br><br>
+      <strong>Analogues:</strong> HTTP verbs are domain-neutral, REST resources are domain-specific. Beckn's coordination grammar is domain-neutral, catalogue schema is vertical-specific. CCM follows the same pattern.
+    </div>
+  </div>
+  <aside class="notes">
+    Backup slide — only show if Pramod asks about extensibility or the "why not just use Beckn" question comes up. The table makes the binding model concrete. The key message: we've designed CCM so the coordination core is reusable — health is the first and immediate focus, but the protocol isn't health-specific at its core.
+  </aside>
+</section>
+
+</div><!-- /.slides -->
+</div><!-- /.reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+<script>
+  // Embed the interactive architecture diagram
+  // Base64-encoded to avoid script-tag HTML-parser termination issues
+  const ARCH_HTML = new TextDecoder("utf-8").decode(
+    Uint8Array.from(atob("PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+Q0NNIEZlZGVyYXRlZCBBcmNoaXRlY3R1cmUgdjIg4oCUIFByb3RvY29scyBhcyBTdWJzdHJhdGU8L3RpdGxlPgo8c3R5bGU+CiAgKiB7IG1hcmdpbjogMDsgcGFkZGluZzogMDsgYm94LXNpemluZzogYm9yZGVyLWJveDsgfQogIGJvZHkgeyBmb250LWZhbWlseTogJ0ludGVyJywgJ1NlZ29lIFVJJywgc3lzdGVtLXVpLCBzYW5zLXNlcmlmOyBiYWNrZ3JvdW5kOiAjZjVmNmY4OyBjb2xvcjogIzMzMzsgcGFkZGluZzogMjBweDsgfQoKICAuaGVhZGVyIHsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW4tYm90dG9tOiAxNnB4OyB9CiAgLmhlYWRlciBoMSB7IGZvbnQtc2l6ZTogMjBweDsgY29sb3I6ICMyMjI7IGZvbnQtd2VpZ2h0OiA3MDA7IH0KICAuaGVhZGVyIC5zdWJ0aXRsZSB7IGZvbnQtc2l6ZTogMTJweDsgY29sb3I6ICM4ODg7IG1hcmdpbi10b3A6IDRweDsgfQogIC5oZWFkZXIgLnZhcmlhbnQgeyBmb250LXNpemU6IDExcHg7IGNvbG9yOiAjMTU2NUMwOyBtYXJnaW4tdG9wOiAycHg7IGZvbnQtd2VpZ2h0OiA1MDA7IH0KCiAgLmxlZ2VuZCB7IGRpc3BsYXk6IGZsZXg7IGdhcDogOHB4OyBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjsgbWFyZ2luLWJvdHRvbTogMTJweDsgZmxleC13cmFwOiB3cmFwOyB9CiAgLmxlZ2VuZC1pdGVtIHsKICAgIGRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiBjZW50ZXI7IGdhcDogNXB4OyBwYWRkaW5nOiA0cHggMTJweDsgYm9yZGVyLXJhZGl1czogMTRweDsKICAgIGZvbnQtc2l6ZTogMTAuNXB4OyBmb250LXdlaWdodDogNTAwOyBjdXJzb3I6IHBvaW50ZXI7IGJvcmRlcjogMXB4IHNvbGlkICNlMGUwZTA7CiAgICBiYWNrZ3JvdW5kOiAjZjhmOGY4OyB0cmFuc2l0aW9uOiBhbGwgMC4yczsgdXNlci1zZWxlY3Q6IG5vbmU7CiAgfQogIC5sZWdlbmQtaXRlbTpob3ZlciwgLmxlZ2VuZC1pdGVtLmFjdGl2ZSB7IGJvcmRlci1jb2xvcjogdmFyKC0tbGMpOyBiYWNrZ3JvdW5kOiB2YXIoLS1sYy1iZyk7IH0KICAubGVnZW5kLWRvdCB7IHdpZHRoOiAxMHB4OyBoZWlnaHQ6IDEwcHg7IGJvcmRlci1yYWRpdXM6IDUwJTsgZmxleC1zaHJpbms6IDA7IH0KCiAgLm1haW4geyBkaXNwbGF5OiBmbGV4OyBnYXA6IDE2cHg7IH0KCiAgLmRpYWdyYW0td3JhcCB7CiAgICBwb3NpdGlvbjogcmVsYXRpdmU7IHdpZHRoOiA4NTBweDsgaGVpZ2h0OiA1ODBweDsKICAgIGJvcmRlci1yYWRpdXM6IDE0cHg7IGJvcmRlcjogMXB4IHNvbGlkICNlMGUwZTA7IG92ZXJmbG93OiBoaWRkZW47IGZsZXgtc2hyaW5rOiAwOwogICAgYm94LXNoYWRvdzogMCAxcHggNHB4IHJnYmEoMCwwLDAsMC4wNik7CiAgICAvKiBUaGUgcHJvdG9jb2wgc3Vic3RyYXRlIElTIHRoZSBiYWNrZ3JvdW5kICovCiAgICBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoMTgwZGVnLCAjRTNGMkZEIDAlLCAjRThFQUY2IDUwJSwgI0UzRjJGRCAxMDAlKTsKICB9CgogIC8qIFByb3RvY29sIHN1YnN0cmF0ZSBsYWJlbCAmIGljb25zICovCiAgLnN1YnN0cmF0ZS1sYWJlbCB7CiAgICBwb3NpdGlvbjogYWJzb2x1dGU7IHotaW5kZXg6IDA7CiAgICBmb250LXNpemU6IDExcHg7IGZvbnQtd2VpZ2h0OiA3MDA7IGNvbG9yOiAjMTU2NUMwNjY7CiAgICB0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyBsZXR0ZXItc3BhY2luZzogMnB4OwogIH0KICAucHJvdG9jb2wtdGFnIHsKICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTsgei1pbmRleDogMDsgZm9udC1zaXplOiA5cHg7IGZvbnQtd2VpZ2h0OiA2MDA7CiAgICBjb2xvcjogIzE1NjVDMDQ0OyBib3JkZXI6IDFweCBkYXNoZWQgIzE1NjVDMDMzOyBib3JkZXItcmFkaXVzOiAxMHB4OwogICAgcGFkZGluZzogMnB4IDhweDsgYmFja2dyb3VuZDogI2ZmZmZmZjIyOwogIH0KCiAgLmxheWVyLWJnIHsKICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTsgbGVmdDogMTRweDsgcmlnaHQ6IDE0cHg7IGJvcmRlci1yYWRpdXM6IDEwcHg7CiAgICBib3JkZXI6IDFweCBzb2xpZCB0cmFuc3BhcmVudDsgei1pbmRleDogMTsKICB9CiAgLmxheWVyLWxhYmVsIHsKICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTsgcmlnaHQ6IDE0cHg7IHRvcDogNnB4OyBmb250LXNpemU6IDkuNXB4OyBmb250LXdlaWdodDogNzAwOwogICAgdGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsgbGV0dGVyLXNwYWNpbmc6IDAuNXB4OyBvcGFjaXR5OiAwLjc7CiAgfQogIC5sYXllci1hbmFsb2d5IHsKICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTsgcmlnaHQ6IDE0cHg7IHRvcDogMjBweDsgZm9udC1zaXplOiA4LjVweDsgZm9udC1zdHlsZTogaXRhbGljOyBvcGFjaXR5OiAwLjU7CiAgfQoKICAuYWRhcHRlci1zdHJpcCB7CiAgICBwb3NpdGlvbjogYWJzb2x1dGU7IGxlZnQ6IDE0cHg7IHJpZ2h0OiAxNHB4OyBib3JkZXItcmFkaXVzOiA2cHg7CiAgICBkaXNwbGF5OiBmbGV4OyBhbGlnbi1pdGVtczogY2VudGVyOyBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjsKICAgIGN1cnNvcjogcG9pbnRlcjsgdXNlci1zZWxlY3Q6IG5vbmU7IHRyYW5zaXRpb246IGFsbCAwLjJzOyB6LWluZGV4OiAzOwogIH0KICAuYWRhcHRlci1zdHJpcDpob3ZlciB7IHRyYW5zZm9ybTogc2NhbGVZKDEuMDgpOyB9CiAgLmFkYXB0ZXItc3RyaXAuc2VsZWN0ZWQgeyB6LWluZGV4OiAxMDsgfQogIC5hZGFwdGVyLXN0cmlwLmRpbW1lZCB7IG9wYWNpdHk6IDAuMjsgfQogIC5hZGFwdGVyLWxhYmVsIHsgZm9udC1zaXplOiAxMC41cHg7IGZvbnQtd2VpZ2h0OiA3MDA7IGxldHRlci1zcGFjaW5nOiAxLjVweDsgdGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsgfQogIC5hZGFwdGVyLXN1YmxhYmVsIHsgZm9udC1zaXplOiA5cHg7IGZvbnQtd2VpZ2h0OiA0MDA7IG1hcmdpbi1sZWZ0OiAxMnB4OyBmb250LXN0eWxlOiBpdGFsaWM7IG9wYWNpdHk6IDAuNzsgfQoKICAuY29tcCB7CiAgICBwb3NpdGlvbjogYWJzb2x1dGU7IGJvcmRlci1yYWRpdXM6IDhweDsgY3Vyc29yOiBwb2ludGVyOyBkaXNwbGF5OiBmbGV4OwogICAgYWxpZ24taXRlbXM6IGNlbnRlcjsganVzdGlmeS1jb250ZW50OiBjZW50ZXI7IHBhZGRpbmc6IDRweCA4cHg7CiAgICB0cmFuc2l0aW9uOiBhbGwgMC4yczsgei1pbmRleDogMzsgdXNlci1zZWxlY3Q6IG5vbmU7CiAgfQogIC5jb21wIHNwYW4geyBmb250LXNpemU6IDExLjVweDsgZm9udC13ZWlnaHQ6IDYwMDsgdGV4dC1hbGlnbjogY2VudGVyOyBsaW5lLWhlaWdodDogMS4yOyB9CiAgLmNvbXA6aG92ZXIgeyB0cmFuc2Zvcm06IHNjYWxlKDEuMDQpOyB6LWluZGV4OiA1OyB9CiAgLmNvbXAuc2VsZWN0ZWQgeyB6LWluZGV4OiAxMDsgdHJhbnNmb3JtOiBzY2FsZSgxLjA2KTsgfQogIC5jb21wLmRpbW1lZCB7IG9wYWNpdHk6IDAuMjsgfQogIC5jb21wLmhpZ2hsaWdodGVkIHsgei1pbmRleDogNTsgfQoKICAvKiBQcm90b2NvbCBwaWxsIGJhZGdlcyDigJQgZmFkZWQgaW50byB0aGUgc3Vic3RyYXRlIGxpa2UgYmFja2dyb3VuZCBpbmZyYXN0cnVjdHVyZSAqLwogIC5wcm90b2NvbC1waWxsIHsKICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTsgei1pbmRleDogMjsgYm9yZGVyLXJhZGl1czogMTRweDsgY3Vyc29yOiBwb2ludGVyOwogICAgZGlzcGxheTogZmxleDsgYWxpZ24taXRlbXM6IGNlbnRlcjsganVzdGlmeS1jb250ZW50OiBjZW50ZXI7IHBhZGRpbmc6IDNweCAxMnB4OwogICAgZm9udC1zaXplOiAxMHB4OyBmb250LXdlaWdodDogNjAwOyB1c2VyLXNlbGVjdDogbm9uZTsgdHJhbnNpdGlvbjogYWxsIDAuMjVzOwogICAgb3BhY2l0eTogMC4zODsKICB9CiAgLnByb3RvY29sLXBpbGw6aG92ZXIgeyB0cmFuc2Zvcm06IHNjYWxlKDEuMDYpOyB6LWluZGV4OiA1OyBvcGFjaXR5OiAwLjg1OyB9CiAgLnByb3RvY29sLXBpbGwuc2VsZWN0ZWQgeyB6LWluZGV4OiAxMDsgdHJhbnNmb3JtOiBzY2FsZSgxLjEpOyBvcGFjaXR5OiAxOyB9CiAgLnByb3RvY29sLXBpbGwuZGltbWVkIHsgb3BhY2l0eTogMC4xOyB9CiAgLnByb3RvY29sLXBpbGwuaGlnaGxpZ2h0ZWQgeyB6LWluZGV4OiA1OyBvcGFjaXR5OiAwLjc1OyB9CgogIC5kaWFncmFtLXN2ZyB7CiAgICBwb3NpdGlvbjogYWJzb2x1dGU7IHRvcDogMDsgbGVmdDogMDsgd2lkdGg6IDEwMCU7IGhlaWdodDogMTAwJTsgcG9pbnRlci1ldmVudHM6IG5vbmU7IHotaW5kZXg6IDI7CiAgfQogIC5kaWFncmFtLXN2ZyBwYXRoIHsgdHJhbnNpdGlvbjogb3BhY2l0eSAwLjNzLCBzdHJva2Utd2lkdGggMC4yczsgfQoKICAuc2lkZWJhciB7IGZsZXg6IDE7IG1pbi13aWR0aDogMjgwcHg7IG1heC13aWR0aDogMzgwcHg7IH0KCiAgLmRldGFpbC1wYW5lbCB7CiAgICBiYWNrZ3JvdW5kOiAjZmZmOyBib3JkZXI6IDFweCBzb2xpZCAjZGRkOyBib3JkZXItcmFkaXVzOiAxMnB4OyBwYWRkaW5nOiAxOHB4OwogICAgYm94LXNoYWRvdzogMCA0cHggMjBweCByZ2JhKDAsMCwwLDAuMSk7CiAgfQogIC5kZXRhaWwtaGVhZGVyIHsgZGlzcGxheTogZmxleDsganVzdGlmeS1jb250ZW50OiBzcGFjZS1iZXR3ZWVuOyBhbGlnbi1pdGVtczogZmxleC1zdGFydDsgbWFyZ2luLWJvdHRvbTogMTBweDsgfQogIC5kZXRhaWwtdGl0bGUgeyBmb250LXNpemU6IDE1cHg7IGZvbnQtd2VpZ2h0OiA3MDA7IH0KICAuZGV0YWlsLWJhZGdlIHsKICAgIGRpc3BsYXk6IGlubGluZS1ibG9jazsgZm9udC1zaXplOiAxMHB4OyBmb250LXdlaWdodDogNjAwOyBib3JkZXItcmFkaXVzOiA0cHg7CiAgICBwYWRkaW5nOiAycHggN3B4OyBtYXJnaW4tdG9wOiA0cHg7CiAgfQogIC5kZXRhaWwtZGVzYyB7IGZvbnQtc2l6ZTogMTIuNXB4OyBjb2xvcjogIzQ0NDsgbGluZS1oZWlnaHQ6IDEuNjsgfQogIC5kZXRhaWwtbWV0YSB7IG1hcmdpbi10b3A6IDEycHg7IHBhZGRpbmctdG9wOiAxMHB4OyBib3JkZXItdG9wOiAxcHggc29saWQgI2VlZTsgZm9udC1zaXplOiAxMXB4OyBjb2xvcjogIzg4ODsgfQogIC5jbG9zZS1idG4gewogICAgYmFja2dyb3VuZDogbm9uZTsgYm9yZGVyOiBub25lOyBjdXJzb3I6IHBvaW50ZXI7IGZvbnQtc2l6ZTogMjBweDsgY29sb3I6ICM5OTk7CiAgICBwYWRkaW5nOiAwIDRweDsgbGluZS1oZWlnaHQ6IDE7CiAgfQogIC5jbG9zZS1idG46aG92ZXIgeyBjb2xvcjogIzU1NTsgfQoKICAucHJpbmNpcGxlcyB7CiAgICBiYWNrZ3JvdW5kOiAjZjhmOWZhOyBib3JkZXItcmFkaXVzOiAxMnB4OyBwYWRkaW5nOiAxOHB4OyBib3JkZXI6IDFweCBzb2xpZCAjZThlOGU4OwogIH0KICAucHJpbmNpcGxlcyBoMyB7IGZvbnQtc2l6ZTogMTNweDsgZm9udC13ZWlnaHQ6IDYwMDsgY29sb3I6ICM1NTU7IG1hcmdpbi1ib3R0b206IDEwcHg7IH0KICAucHJpbmNpcGxlIHsgZm9udC1zaXplOiAxMS41cHg7IGNvbG9yOiAjNjY2OyBsaW5lLWhlaWdodDogMS42OyBtYXJnaW4tYm90dG9tOiA1cHg7IH0KICAucHJpbmNpcGxlIHN0cm9uZyB7IGNvbG9yOiAjNDQ0OyB9CgogIC5pbnRlcmFjdGlvbnMtc2VjdGlvbiB7IG1hcmdpbi10b3A6IDE2cHg7IH0KICAuaW50ZXJhY3Rpb25zLXNlY3Rpb24gaDMgeyBmb250LXNpemU6IDEycHg7IGZvbnQtd2VpZ2h0OiA2MDA7IGNvbG9yOiAjNTU1OyBtYXJnaW4tYm90dG9tOiA4cHg7IH0KICAuaW50ZXJhY3Rpb25zLWxpc3QgeyBkaXNwbGF5OiBmbGV4OyBmbGV4LXdyYXA6IHdyYXA7IGdhcDogNXB4OyB9CiAgLmludC1idG4gewogICAgZGlzcGxheTogZmxleDsgYWxpZ24taXRlbXM6IGNlbnRlcjsgZ2FwOiA0cHg7IHBhZGRpbmc6IDRweCAxMHB4OyBib3JkZXItcmFkaXVzOiA2cHg7CiAgICBjdXJzb3I6IHBvaW50ZXI7IGZvbnQtc2l6ZTogMTAuNXB4OyBiYWNrZ3JvdW5kOiAjZmZmOyBib3JkZXI6IDFweCBzb2xpZCAjZGRkOwogICAgY29sb3I6ICM0NDQ7IHRyYW5zaXRpb246IGFsbCAwLjE1czsKICB9CiAgLmludC1idG46aG92ZXIgeyBib3JkZXItY29sb3I6ICNhYWE7IGJhY2tncm91bmQ6ICNmNWY1ZjU7IH0KICAuaW50LWJ0bi5hY3RpdmUgeyBib3JkZXItY29sb3I6IHZhcigtLWljKTsgYmFja2dyb3VuZDogdmFyKC0taWMtYmcpOyB9CiAgLmludC1kb3QgeyB3aWR0aDogN3B4OyBoZWlnaHQ6IDdweDsgYm9yZGVyLXJhZGl1czogNTAlOyBmbGV4LXNocmluazogMDsgfQoKICAuZm9vdG5vdGUgewogICAgcG9zaXRpb246IGFic29sdXRlOyBib3R0b206IDhweDsgbGVmdDogMTRweDsgZm9udC1zaXplOiA5cHg7IGNvbG9yOiAjMTU2NUMwNDQ7IGZvbnQtc3R5bGU6IGl0YWxpYzsgei1pbmRleDogMDsKICB9Cjwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+Cgo8ZGl2IGNsYXNzPSJoZWFkZXIiPgogIDxoMT5DQ00gRmVkZXJhdGVkIEFyY2hpdGVjdHVyZTwvaDE+CiAgPGRpdiBjbGFzcz0ic3VidGl0bGUiPkNsaWNrIGFueSBjb21wb25lbnQgb3IgcHJvdG9jb2wgcGlsbCB0byBzZWUgZGV0YWlscyBhbmQgY29ubmVjdGlvbnMuPC9kaXY+CjwvZGl2PgoKPGRpdiBjbGFzcz0ibGVnZW5kIiBpZD0ibGVnZW5kIj48L2Rpdj4KCjxkaXYgY2xhc3M9Im1haW4iPgogIDxkaXYgY2xhc3M9ImRpYWdyYW0td3JhcCIgaWQ9ImRpYWdyYW0iPgogICAgPGRpdiBjbGFzcz0iZm9vdG5vdGUiPkNvb3JkaW5hdGlvbiBQcm90b2NvbHM6IHRoZSBpbnRlcm9wZXJhYmlsaXR5IHN1YnN0cmF0ZSBjb25uZWN0aW5nIGFsbCBsYXllcnM8L2Rpdj4KICA8L2Rpdj4KICA8ZGl2IGNsYXNzPSJzaWRlYmFyIiBpZD0ic2lkZWJhciI+PC9kaXY+CjwvZGl2PgoKPGRpdiBjbGFzcz0iaW50ZXJhY3Rpb25zLXNlY3Rpb24iPgogIDxoMyBpZD0iaW50LWhlYWRpbmciPkludGVyYWN0aW9ucyAoY2xpY2sgYSBjb21wb25lbnQgdG8gZmlsdGVyKTwvaDM+CiAgPGRpdiBjbGFzcz0iaW50ZXJhY3Rpb25zLWxpc3QiIGlkPSJpbnQtbGlzdCI+PC9kaXY+CjwvZGl2PgoKPHNjcmlwdD4KY29uc3QgQ09MT1JTID0gewogIGwxOiB7IGJnOiAnI0U4RjVFOScsIGJvcmRlcjogJyM0Q0FGNTAnLCB0ZXh0OiAnIzJFN0QzMicsIGxpZ2h0OiAnI0M4RTZDOScgfSwKICBhZGFwdGVyOiB7IGJnOiAnI0M4RTZDOScsIGJvcmRlcjogJyM0Q0FGNTAnLCB0ZXh0OiAnIzFCNUUyMCcsIGxpZ2h0OiAnI0E1RDZBNycgfSwKICBwcm90b2NvbDogeyBiZzogJyNmZmZmZmY1NScsIGJvcmRlcjogJyMxNTY1QzAnLCB0ZXh0OiAnIzE1NjVDMCcsIGxpZ2h0OiAnI0JCREVGQicgfSwKICBsMzogeyBiZzogJyNGRkYzRTAnLCBib3JkZXI6ICcjRkY5ODAwJywgdGV4dDogJyNFNjUxMDAnLCBsaWdodDogJyNGRkUwQjInIH0sCiAgbDQ6IHsgYmc6ICcjRjNFNUY1JywgYm9yZGVyOiAnIzlDMjdCMCcsIHRleHQ6ICcjNkExQjlBJywgbGlnaHQ6ICcjRTFCRUU3JyB9LAogIGZsb3c6IHsgbWV0YWRhdGE6ICcjRkY5ODAwJywgY2xpbmljYWw6ICcjNENBRjUwJywgcG9saWN5OiAnIzlDMjdCMCcsIHByb3RvY29sOiAnIzE1NjVDMCcgfSwKfTsKCi8qCiAgTEFZT1VUIOKAlCB0b3AgdG8gYm90dG9tOgogIEwxIGVkZ2Ugc3lzdGVtcyAoeTogMjDigJMxNzApCiAgQWRhcHRlciBzdHJpcCAoeTogMTc4KQogIC0tLSBwcm90b2NvbCBzdWJzdHJhdGUgZ2FwIHdpdGggZmxvYXRpbmcgcGlsbHMgKHk6IDIxOOKAkzI5MCkgLS0tCiAgTDMgT2JzZXJ2YXRpb24gJiBQb2xpY3kgKHk6IDM0MOKAkzQzNSkKICAtLS0gcHJvdG9jb2wgc3Vic3RyYXRlIGdhcCB3aXRoIGZsb2F0aW5nIHBpbGxzICh5OiA0MzXigJM0NzApIC0tLQogIEw0IEdvdmVybmFuY2UgKHk6IDQ5MOKAkzU1NSkKCiAgVGhlIGVudGlyZSBkaWFncmFtIGJhY2tncm91bmQgSVMgdGhlIHByb3RvY29sIGxheWVyLgogIFByb3RvY29sIHBpbGxzIGZsb2F0IGluIHRoZSBnYXBzLgoqLwoKY29uc3QgbGF5ZXJJbmZvID0gewogIGwxOiAgICAgIHsgbGFiZWw6ICdFZGdlIFN5c3RlbXMnLCBhbmFsb2d5OiAnV2hlcmUgY2FyZSBoYXBwZW5zJywgeTogMTYsIGg6IDE2MCB9LAogIGFkYXB0ZXI6IHsgbGFiZWw6ICdDQ00gRWRnZSBBZGFwdGVyJywgYW5hbG9neTogJ0VkZ2UgZ2F0ZXdheScsIHk6IDE4MiwgaDogMzQgfSwKICBsMzogICAgICB7IGxhYmVsOiAnQ0NNOiBPYnNlcnZhdGlvbiAmIFBvbGljeScsIGFuYWxvZ3k6ICdPYnNlcnZlcyAmIGFyYml0cmF0ZXMgKG1ldGFkYXRhIG9ubHkpJywgeTogMzMwLCBoOiAxMDAgfSwKICBsNDogICAgICB7IGxhYmVsOiAnR292ZXJuYW5jZScsIGFuYWxvZ3k6ICdSZWd1bGF0b3J5IGxheWVyJywgeTogNDkwLCBoOiA3MiB9LAp9OwoKY29uc3QgY29tcG9uZW50cyA9IHsKICAvLyBMMSBFZGdlIFN5c3RlbXMKICBoaXM6ICAgICB7IGlkOidoaXMnLCAgICAgbGFiZWw6J0ZhY2lsaXR5IEhJUycsICAgICBsYXllcjonbDEnLCB4OjgwLCAgeTozNCwgIHc6MTQwLCBoOjU0LCBkZXNjOidIb3NwaXRhbC9mYWNpbGl0eSBpbmZvcm1hdGlvbiBzeXN0ZW1zIChwdWJsaWMgJiBwcml2YXRlKS4gTWFuYWdlIEVIUnMsIGxvY2FsIHNsb3RzLCBhbmQgY2FyZSBwbGFucy4gQ2xpbmljYWwgZGF0YSBjdXN0b2RpYW5zIFx1MjAxNCBhbGwgcGF0aWVudCBkYXRhIHJlc2lkZXMgYXQgdGhlIGVkZ2UgdGhhdCBjcmVhdGVkIGl0LicgfSwKICBwaHI6ICAgICB7IGlkOidwaHInLCAgICAgbGFiZWw6J1BIUiBBcHBzJywgICAgICAgICAgbGF5ZXI6J2wxJywgeDoyNDAsIHk6MzQsICB3OjEzMCwgaDo1NCwgZGVzYzonUGVyc29uYWwgSGVhbHRoIFJlY29yZCBhcHBsaWNhdGlvbnMuIFBhdGllbnQtaGVsZCBjb25zb2xpZGF0ZWQgaGVhbHRoIHZpZXcuIExvbmdpdHVkaW5hbCByZWNvcmRzIGFzc2VtYmxlZCBhdCBwb2ludCBvZiBjYXJlIGJ5IHB1bGxpbmcgZnJvbSBvdGhlciBlZGdlcyB2aWEgbmF0aW9uYWwgSElFIChlLmcuLCBBQkRNIEhJRS1DTSkgd2l0aCBjb25zZW50LicgfSwKICBjaHc6ICAgICB7IGlkOidjaHcnLCAgICAgbGFiZWw6J0NIVyAvIEZMVyBBcHBzJywgICAgbGF5ZXI6J2wxJywgeDozOTAsIHk6MzQsICB3OjExNSwgaDo1NCwgZGVzYzonQ29tbXVuaXR5IEhlYWx0aCBXb3JrZXIgYW5kIEZyb250bGluZSBXb3JrZXIgbW9iaWxlIGFwcHMuIEZpZWxkLWxldmVsIGRhdGEgY2FwdHVyZSwgc2NyZWVuaW5nLCBmb2xsb3ctdXAgdHJhY2tpbmcuIFBhcGVyLWZhbGxiYWNrIGNhcGFibGUgZm9yIFBoYXNlIDAgbWF0dXJpdHkuJyB9LAogIGNmYzogICAgIHsgaWQ6J2NmYycsICAgICBsYWJlbDonQ0ZDIC8gQ2FsbCBDZW50cmUnLCAgbGF5ZXI6J2wxJywgeDo1MjUsIHk6MzQsICB3OjE0NSwgaDo1NCwgZGVzYzonQ2FyZSBGYWNpbGl0YXRpb24gQ2VudHJlcyBhbmQgQ2FsbCBDZW50cmVzLiBQYXRpZW50IG5hdmlnYXRpb24sIGFwcG9pbnRtZW50IGJvb2tpbmcsIHByb2FjdGl2ZSBmb2xsb3ctdXAgb3V0cmVhY2guIENhbiBlc2NhbGF0ZSBvbiBiZWhhbGYgb2YgcGF0aWVudHMgd2hlbiBmYWNpbGl0aWVzIGRvblx1MjAxOXQgaG9ub3VyIGNvbW1pdG1lbnRzLicgfSwKICBsaW1zOiAgICB7IGlkOidsaW1zJywgICAgbGFiZWw6J0xJTVMgLyBQaGFybWFjeScsICAgIGxheWVyOidsMScsIHg6NjkwLCB5OjM0LCAgdzoxMzAsIGg6NTQsIGRlc2M6J0xhYm9yYXRvcnkgSW5mb3JtYXRpb24gJiBQaGFybWFjeSBNYW5hZ2VtZW50IFN5c3RlbXMuIERpYWdub3N0aWNzIG9yZGVyaW5nLCByZXN1bHRzIGRlbGl2ZXJ5LCBwcmVzY3JpcHRpb24gZnVsZmlsbWVudCB0cmFja2luZy4nIH0sCiAgc2NyaWJlOiAgeyBpZDonc2NyaWJlJywgIGxhYmVsOidTQ1JJQkUnLCAgICAgICAgICAgICBsYXllcjonbDEnLCB4OjgwLCAgeToxMDQsIHc6MTIwLCBoOjUwLCBkZXNjOidWb2ljZS10by1zdHJ1Y3R1cmVkLXRleHQgQUkuIFJ1bnMgb24tZGV2aWNlIGF0IHRoZSBlZGdlLiBDb252ZXJ0cyBjb25zdWx0YXRpb24gYXVkaW8gaW50byBzdHJ1Y3R1cmVkIEVIUiBlbnRyaWVzLiBPbmx5IHN0cnVjdHVyZWQgb3V0cHV0cyBsZWF2ZSB0aGUgZGV2aWNlIFx1MjAxNCBwcmVzZXJ2ZXMgY29uc3VsdGF0aW9uIHByaXZhY3kuJyB9LAogIGFxZTogICAgIHsgaWQ6J2FxZScsICAgICBsYWJlbDonQVFFJywgICAgICAgICAgICAgICAgbGF5ZXI6J2wxJywgeDoyMjAsIHk6MTA0LCB3OjEyMCwgaDo1MCwgZGVzYzonQXV0b21hdGVkIHRyaWFnZS9xdWFsaXR5IGVuZ2luZS4gUnVucyBsb2NhbGx5IGF0IHRoZSBlZGdlLiBMb2NhbGx5IGFkYXB0YWJsZSAoZS5nLiwgbWFsYXJpYS1lbmRlbWljIHJ1cmFsIGFyZWFzIHdlaWdodCBkaWZmZXJlbnRseSBmcm9tIHVyYmFuIGNlbnRyZXMpLiBGZWVkcyB0cmlhZ2UgZGVjaXNpb25zIGludG8gQ0RTUy4nIH0sCiAgY2RzczogICAgeyBpZDonY2RzcycsICAgIGxhYmVsOidDRFNTJywgICAgICAgICAgICAgICBsYXllcjonbDEnLCB4OjM2MCwgeToxMDQsIHc6MTIwLCBoOjUwLCBkZXNjOidDbGluaWNhbCBEZWNpc2lvbiBTdXBwb3J0IFN5c3RlbS4gU1RHLWxpbmtlZCBndWlkYW5jZSBydW5uaW5nIGxvY2FsbHkuIERydWcgaW50ZXJhY3Rpb24gY2hlY2tzLCB0cmVhdG1lbnQgcHJvdG9jb2wgcmVjb21tZW5kYXRpb25zLiBDbGluaWNhbCBydWxlcyBzdGF5IGF0IHRoZSBlZGdlLCBub3QgYXQgTDMuJyB9LAogIHRlbGVjb246IHsgaWQ6J3RlbGVjb24nLCAgbGFiZWw6J1RlbGVjb25zdWx0JywgICAgICAgIGxheWVyOidsMScsIHg6NTAwLCB5OjEwNCwgdzoxMzAsIGg6NTAsIGRlc2M6J1RlbGUtY29uc3VsdGF0aW9uIHBsYXRmb3Jtcy4gUmVtb3RlIHNwZWNpYWxpc3QgYWNjZXNzLiBWaWRlby9hdWRpbyBjb25zdWx0cyB3aXRoIHN0cnVjdHVyZWQgRUhSIG91dHB1dCB2aWEgU0NSSUJFIGludGVncmF0aW9uLicgfSwKCiAgLy8gRWRnZSBBZGFwdGVyCiAgZWRnZWFkYXB0ZXI6IHsgaWQ6J2VkZ2VhZGFwdGVyJywgbGFiZWw6J0NDTSBFZGdlIEFkYXB0ZXInLCBsYXllcjonYWRhcHRlcicsIHg6MTQsIHk6MTgyLCB3OjgyMiwgaDozNCwgaXNTdHJpcDp0cnVlLCBkZXNjOidMaWdodHdlaWdodCBvcGVuLXNvdXJjZSBhZGFwdGVyIChTREsgb3IgZWRnZSBzZXJ2aWNlKSB0aGF0IGV2ZXJ5IGVkZ2Ugc3lzdGVtIGludGVncmF0ZXMgd2l0aC4gRm91ciBtb2R1bGVzOiBFdmVudCBFbWl0dGVyIChtZXRhZGF0YSBzdHJpcHBpbmcsIGRpZ2l0YWwgc2lnbmluZywgb2ZmbGluZSBxdWV1aW5nKSwgUHJvdG9jb2wgSGFuZGxlciAocGVlci10by1wZWVyIEZISVIgZXhjaGFuZ2UsIHNpZ25lZCByZWNlaXB0cyksIFBvbGljeSBDbGllbnQgKHJlYWwtdGltZSBMMyBydWxlIHF1ZXJpZXMgd2l0aCBsb2NhbCBjYWNoZSksIGFuZCBBbmFseXRpY3MgQWdlbnQgKGxvY2FsIFBIV1MgY29tcHV0YXRpb24pLiBBY3RzIGFzIHRoZSBzaW5nbGUgZ2F0ZXdheSBiZXR3ZWVuIGVkZ2UgYXBwbGljYXRpb25zIGFuZCB0aGUgcmVzdCBvZiB0aGUgQ0NNIGVjb3N5c3RlbS4gVGhlIG1vc3QgaW1wb3J0YW50IGFkb3B0aW9uIGVuYWJsZXIuJyB9LAoKICAvLyBQcm90b2NvbCBwaWxscyDigJQgZmxvYXRpbmcgaW4gdGhlIHN1YnN0cmF0ZQogIHJlZmVycmFsOiAgICB7IGlkOidyZWZlcnJhbCcsICAgIGxhYmVsOidSZWZlcnJhbCcsICAgICAgICBsYXllcjoncHJvdG9jb2wnLCB4Ojc1LCAgeToyNTAsIHc6MTAwLCBoOjMwLCBpc1BpbGw6dHJ1ZSwgZGVzYzonUGVlci10by1wZWVyIGNsb3NlZC1sb29wIHJlZmVycmFsIG1hbmFnZW1lbnQuIEZhY2lsaXR5IEEgc2VuZHMgRkhJUiBTZXJ2aWNlUmVxdWVzdCBkaXJlY3RseSB0byBGYWNpbGl0eSBCLiBTaWduZWQgcmVjZWlwdCBleGNoYW5nZS4gQ29tbWl0bWVudCByZWdpc3RlcmVkIHdpdGggTDMuIFNMQSBicmVhY2ggdHJpZ2dlcnMgY291bnRlci1wYXJ0eSBlc2NhbGF0aW9uLicgfSwKICBhcHBvaW50bWVudDogeyBpZDonYXBwb2ludG1lbnQnLCBsYWJlbDonQXBwb2ludG1lbnQnLCAgICAgbGF5ZXI6J3Byb3RvY29sJywgeDoxOTUsIHk6MjUwLCB3OjExMCwgaDozMCwgaXNQaWxsOnRydWUsIGRlc2M6J1Nsb3QgcHVibGlzaGluZywgZGlyZWN0IHBhdGllbnQtZmFjaWxpdHkgYm9va2luZy4gRmFjaWxpdGllcyBjb21taXQgdG8gaG9ub3VyaW5nIGJvb2tlZCBzbG90cyAocmVnaXN0ZXJlZCB3aXRoIEwzKS4gUGF0aWVudHMgY2FuIGVzY2FsYXRlIHZpYSBDRkMgaWYgZmFjaWxpdHkgY2FuY2VscyBvciBkb2Vzblx1MjAxOXQgaG9ub3VyIGJvb2tpbmcuJyB9LAogIGNhcmVwbGFuOiAgICB7IGlkOidjYXJlcGxhbicsICAgIGxhYmVsOidDYXJlIFBsYW4nLCAgICAgICBsYXllcjoncHJvdG9jb2wnLCB4OjMyNSwgeToyNTAsIHc6MTAwLCBoOjMwLCBpc1BpbGw6dHJ1ZSwgZGVzYzonU2hhcmVkIGNhcmUgcGxhbiBsaWZlY3ljbGU6IGNyZWF0aW9uLCBtb2RpZmljYXRpb24sIGNvbmZsaWN0IGRldGVjdGlvbiwgb3duZXJzaGlwIHRyYW5zZmVyLiBGSElSIENhcmVQbGFuIHdpdGggdmVyc2lvbmluZy4gRHluYW1pYyBvd25lcnNoaXAgbW9kZWwuIEVtZXJnZW5jeSBtb2RpZmljYXRpb25zIGNvbW1pdHRlZCBpbW1lZGlhdGVseTsgZWxlY3RpdmUgbW9kaWZpY2F0aW9ucyBnbyB0aHJvdWdoIGVkZ2UtbGV2ZWwgY29uZmxpY3QgZGV0ZWN0aW9uLicgfSwKICBmb2xsb3d1cDogICAgeyBpZDonZm9sbG93dXAnLCAgICBsYWJlbDonRm9sbG93LVVwJywgICAgICAgbGF5ZXI6J3Byb3RvY29sJywgeDo0NDUsIHk6MjUwLCB3OjEwMCwgaDozMCwgaXNQaWxsOnRydWUsIGRlc2M6J0NvbW1pdG1lbnQtYmFzZWQgZm9sbG93LXVwIHRyYWNraW5nLiBEdWUgZGF0ZXMgcmVnaXN0ZXJlZCB3aXRoIEwzLiBIYW5kbGVzIHRoZSBcdTIwMUNzaWxlbnQgY29sbHVzaW9uXHUyMDFEIGVkZ2UgY2FzZSB3aGVyZSBuZWl0aGVyIHBhcnR5IHJlcG9ydHMuIEwzIHByb2FjdGl2ZWx5IHF1ZXJpZXMgd2hlbiBkdWUgZGF0ZXMgcGFzcyBhbmQgdHJpZ2dlcnMgY29tbXVuaXR5IG91dHJlYWNoLicgfSwKICBxdWFsaXR5OiAgICAgeyBpZDoncXVhbGl0eScsICAgICBsYWJlbDonUXVhbGl0eSBTaWduYWwnLCAgbGF5ZXI6J3Byb3RvY29sJywgeDo1NjUsIHk6MjUwLCB3OjExMCwgaDozMCwgaXNQaWxsOnRydWUsIGRlc2M6J1NURyBkZXZpYXRpb24gcmVwb3J0aW5nIGFzIG1ldGFkYXRhIGV2ZW50cyAobm8gY2xpbmljYWwgZGV0YWlsKSBcdTIwMTQgZGV2aWF0aW9uIHR5cGUsIHNldmVyaXR5LCBmYWNpbGl0eSBvbmx5LiBQcm92aWRlcnMgY2FuIGNvbnRlc3QgZmxhZ3MgdmlhIGRpc3B1dGUgcmVzb2x1dGlvbi4gRW5hYmxlcyBXSE8tUkFHIGFjY291bnRhYmlsaXR5IHdpdGhvdXQgY2VudHJhbGlzaW5nIGNsaW5pY2FsIHJlY29yZHMuJyB9LAoKICAvLyBBZGRpdGlvbmFsIHByb3RvY29sIHBpbGxzIGluIHRoZSBsb3dlciBzdWJzdHJhdGUgZ2FwIChiZXR3ZWVuIEwzIGFuZCBMNCkKICB0cnVzdG1vZGVsOiAgeyBpZDondHJ1c3Rtb2RlbCcsICBsYWJlbDonU2lnbmVkIEhhc2ggVHJ1c3QnLCBsYXllcjoncHJvdG9jb2wnLCB4OjEzNSwgeTo0NDUsIHc6MTM1LCBoOjI4LCBpc1BpbGw6dHJ1ZSwgZGVzYzonQ291bnRlci1wYXJ0eSByZXBvcnRpbmcgd2l0aCBjcnlwdG9ncmFwaGljIGV2aWRlbmNlLiBFdmVyeSBjb29yZGluYXRpb24gZXZlbnQgaW52b2x2ZXMgYSBzaWduaW5nIHNlcXVlbmNlOiBpbml0aWF0aW9uIChzaWduZWQgYnkgc2VuZGVyKSwgcmVjZWlwdCAoc2lnbmVkIGJ5IHJlY2VpdmVyKSwgY29tbWl0bWVudCByZWdpc3RyYXRpb24gKGJvdGggaGFzaGVzIHRvIEwzKS4gTm9uLXJlcHVkaWFibGUgZXZpZGVuY2UgZm9yIGRpc3B1dGUgYWRqdWRpY2F0aW9uLicgfSwKICBmaGlyZXZlbnRzOiAgeyBpZDonZmhpcmV2ZW50cycsICBsYWJlbDonRkhJUiBNZXRhZGF0YSBFdmVudHMnLCBsYXllcjoncHJvdG9jb2wnLCB4OjMxMCwgeTo0NDUsIHc6MTUwLCBoOjI4LCBpc1BpbGw6dHJ1ZSwgZGVzYzonRWFjaCBtZXRhZGF0YSBldmVudCBtYXBzIHRvIGEgY29uc3RyYWluZWQgRkhJUiByZXNvdXJjZSBwcm9maWxlIFx1MjAxNCBzdGFuZGFyZCBGSElSIHR5cGVzIHdpdGggb25seSBtZXRhZGF0YSBmaWVsZHMgcG9wdWxhdGVkIGFuZCBjbGluaWNhbCBmaWVsZHMgZXhjbHVkZWQuIFByaXZhY3kgY29uc3RyYWludCBpcyBtYWNoaW5lLWVuZm9yY2VhYmxlIHZpYSBGSElSIHByb2ZpbGVzLiBOb24tRkhJUiBzeXN0ZW1zIHVzZSB0aGUgRWRnZSBBZGFwdGVyXHUyMDE5cyBzaW1wbGlmaWVkIEpTT04gaW5wdXQuJyB9LAogIGhpZTogICAgICAgICB7IGlkOidoaWUnLCAgICAgICAgIGxhYmVsOidISUUgLyBBQkRNIENvbnNlbnQnLCBsYXllcjoncHJvdG9jb2wnLCB4OjUwMCwgeTo0NDUsIHc6MTQ1LCBoOjI4LCBpc1BpbGw6dHJ1ZSwgZGVzYzonTmF0aW9uYWwgSGVhbHRoIEluZm9ybWF0aW9uIEV4Y2hhbmdlIGxheWVyIChlLmcuLCBBQkRNIEhJRS1DTSBpbiBJbmRpYSkuIFByb3ZpZGVzIGNvbnNlbnQtYmFzZWQgcGVlci10by1wZWVyIGNsaW5pY2FsIGRhdGEgZXhjaGFuZ2UgYmV0d2VlbiBlZGdlcy4gQ0NNIGNvb3JkaW5hdGlvbiBwcm90b2NvbHMgYnVpbGQgb24gdG9wIG9mIEhJRSBpbmZyYXN0cnVjdHVyZS4gQ2xpbmljYWwgZGF0YSBmbG93cyBvbmx5IHRocm91Z2ggSElFIHdpdGggcGF0aWVudCBjb25zZW50LicgfSwKCiAgLy8gTDMgT2JzZXJ2YXRpb24gJiBQb2xpY3kKICBwb2xpY3lyZXBvOiAgeyBpZDoncG9saWN5cmVwbycsICBsYWJlbDonUG9saWN5IFJlcG9zaXRvcnknLCAgIGxheWVyOidsMycsIHg6MTAwLCB5OjM1MCwgdzoxNjAsIGg6NTUsIGRlc2M6J0ZhY2UgQSBvZiBMMyAoc3luY2hyb25vdXMpLiBDYW5vbmljYWwgc291cmNlIG9mIGNvb3JkaW5hdGlvbiBydWxlcyBxdWVyaWVkIGJ5IGVkZ2VzIGluIHJlYWwtdGltZTogU0xBIGRlZmluaXRpb25zLCByZWZlcnJhbCByb3V0aW5nIGd1aWRlbGluZXMsIGNhcmUgcGxhbiBjb29yZGluYXRpb24gcnVsZXMsIGVzY2FsYXRpb24gdGllciBkZWZpbml0aW9ucywgUEhXUyBjb21wdXRhdGlvbiBmb3JtdWxhcywgV0hPLVJBRyBjbGFzc2lmaWNhdGlvbiB0aHJlc2hvbGRzLiBQb2xpY3kgdXBkYXRlcyBwdXNoZWQgdG8gZWRnZXM7IGNhY2hlZCBsb2NhbGx5IGZvciBvZmZsaW5lLicgfSwKICBlc2NhbGF0aW9uOiAgeyBpZDonZXNjYWxhdGlvbicsICBsYWJlbDonRXNjYWxhdGlvbiBFbmdpbmUnLCAgIGxheWVyOidsMycsIHg6MjgwLCB5OjM1MCwgdzoxNTUsIGg6NTUsIGRlc2M6J0ZhY2UgQiwgRnVuY3Rpb24gMS4gVGhyZWUtdGllciBlc2NhbGF0aW9uOiBUaWVyIDEgXHUyMDE0IGF1dG9tYXRlZCBzdHJ1Y3R1cmVkIGlucXVpcnkgdG8gcmVzcG9uc2libGUgcGFydHkgKG1ldGFkYXRhLXNjb3BlZCk7IFRpZXIgMiBcdTIwMTQgaHVtYW4gZXNjYWxhdGlvbiB0byBibG9jay9kaXN0cmljdCBoZWFsdGggb2ZmaWNlcjsgVGllciAzIFx1MjAxNCBnb3Zlcm5hbmNlIGFsZXJ0IGZvciBwZXJzaXN0ZW50IHBhdHRlcm5zIG9uIFdITy1SQUcgZGFzaGJvYXJkcy4nIH0sCiAgZGlzcHV0ZTogICAgIHsgaWQ6J2Rpc3B1dGUnLCAgICAgbGFiZWw6J0Rpc3B1dGUgUmVzb2x1dGlvbicsICBsYXllcjonbDMnLCB4OjQ1NSwgeTozNTAsIHc6MTYwLCBoOjU1LCBkZXNjOidGYWNlIEIsIEZ1bmN0aW9uIDIuIEhhbmRsZXMgcmVmZXJyYWwgZGlzcHV0ZXMgKHNpZ25lZCBoYXNoIGFkanVkaWNhdGlvbiksIGNhcmUgcGxhbiBkaXNwdXRlcyAocm91dGVkIHRvIGNsaW5pY2FsIGFyYml0ZXIgd2hvIGFjY2Vzc2VzIGNsaW5pY2FsIGRhdGEgYXQgdGhlIGVkZ2UgdmlhIEhJRSBjb25zZW50KSwgcXVhbGl0eSBmbGFnIGNvbnRlc3RhdGlvbnMsIGFuZCBmaW5hbmNpYWwgZGlzcHV0ZXMgKENGQy9mYWNpbGl0eSBjYXJlIHBhY2thZ2UgY2xhaW1zKS4nIH0sCiAgYW5hbHl0aWNzOiAgIHsgaWQ6J2FuYWx5dGljcycsICAgbGFiZWw6J1BvcHVsYXRpb24gQW5hbHl0aWNzJywgbGF5ZXI6J2wzJywgeDo2MzUsIHk6MzUwLCB3OjE3MCwgaDo1NSwgZGVzYzonRmFjZSBCLCBGdW5jdGlvbiAzLiBDb21wdXRlcyBQSFdTIGF0IGZhY2lsaXR5L3BhbmNoYXlhdC9ibG9jay9kaXN0cmljdC9zdGF0ZSBsZXZlbHMuIFdITy1SQUcgZGFzaGJvYXJkczogcHJvbWlzZSBtYWRlIFx1MjE5MiBwcm9taXNlIGtlcHQgXHUyMTkyIFJBRyBjbGFzc2lmaWNhdGlvbi4gRXBpZGVtaW9sb2dpY2FsIHNpZ25hbHMgZnJvbSBtZXRhZGF0YSBwYXR0ZXJucyAoZS5nLiwgcmVmZXJyYWwgc3Bpa2VzIFx1MjE5MiBvdXRicmVhayBzaWduYWwpLicgfSwKCiAgLy8gTDQgR292ZXJuYW5jZQogIHN0YXRlcG9saWN5OiAgIHsgaWQ6J3N0YXRlcG9saWN5JywgICBsYWJlbDonU3RhdGUgSGVhbHRoIFBvbGljeScsIGxheWVyOidsNCcsIHg6MTAwLCB5OjUwMiwgdzoxNTUsIGg6NDgsIGRlc2M6J1N0YXRlLWxldmVsIGhlYWx0aCBwb2xpY3kgYXV0aG9yaXR5LiBEZWZpbmVzIGNhcmUgcGF0aHdheXMsIFN0YW5kYXJkIFRyZWF0bWVudCBHdWlkZWxpbmVzIChTVEdzKSwgZmluYW5jaW5nIHJ1bGVzLiBDb25zdGl0dXRpb25hbCBhdXRob3JpdHkgb3ZlciBoZWFsdGggKHN0YXRlIHN1YmplY3QgaW4gSW5kaWEpLiBBcHByb3ZlcyBjb29yZGluYXRpb24gcnVsZXMgdGhhdCBMMyBwdWJsaXNoZXMuJyB9LAogIGNlcnRpZmljYXRpb246IHsgaWQ6J2NlcnRpZmljYXRpb24nLCBsYWJlbDonQ0NNLVJlYWR5IENlcnQnLCAgICAgbGF5ZXI6J2w0JywgeDoyODAsIHk6NTAyLCB3OjE1NSwgaDo0OCwgZGVzYzonQ0NNLVJlYWR5IGNlcnRpZmljYXRpb24gZnJhbWV3b3JrLiBEZWZpbmVzIGRpZ2l0YWwgbWF0dXJpdHkgcmVxdWlyZW1lbnRzIGZvciBmYWNpbGl0eSBwYXJ0aWNpcGF0aW9uIGF0IGVhY2ggcGhhc2U6IFBoYXNlIDAgKHBhcGVyICsgYmFzaWMgZGlnaXRpc2F0aW9uKSBcdTIxOTIgUGhhc2UgMSAoSElFLWNvbm5lY3RlZCkgXHUyMTkyIFBoYXNlIDIgKEZISVItY29tcGxpYW50KSBcdTIxOTIgUGhhc2UgMyAoZnVsbCBDQ00pLiBObyBmYWNpbGl0eSBleGNsdWRlZC4nIH0sCiAgZmluYW5jaW5nOiAgICAgeyBpZDonZmluYW5jaW5nJywgICAgIGxhYmVsOidGaW5hbmNpbmcgUnVsZXMnLCAgICAgbGF5ZXI6J2w0JywgeDo0NTUsIHk6NTAyLCB3OjE1MCwgaDo0OCwgZGVzYzonQ2FyZSBmYWNpbGl0YXRpb24gYW5kIGZhY2lsaXR5IGNhcmUgcGFja2FnZSBmaW5hbmNpbmcuIENGQyBjYXBpdGF0aW9uIG1vZGVsIChScyA5OTkveXIpLiBSZXF1aXJlcyBhY3R1YXJpYWwgdmFsaWRhdGlvbi4gU3RhdGUgZmlzY2FsIGNhcGFjaXR5IGNvbnNpZGVyYXRpb25zLiBJbnRlci1zdGF0ZSBwb3J0YWJpbGl0eSBydWxlcy4nIH0sCiAgaW50ZXJzdGF0ZTogICAgeyBpZDonaW50ZXJzdGF0ZScsICAgIGxhYmVsOidJbnRlci1TdGF0ZSBDb29yZCcsICAgbGF5ZXI6J2w0JywgeDo2MzUsIHk6NTAyLCB3OjE3MCwgaDo0OCwgZGVzYzonQ3Jvc3Mtc3RhdGUgY29vcmRpbmF0aW9uIGdvdmVybmFuY2UuIEhhbmRsZXMgcGF0aWVudCBwb3J0YWJpbGl0eSBhY3Jvc3Mgc3RhdGUgYm91bmRhcmllcywgY3Jvc3MtYm9yZGVyIHJlZmVycmFscywgYW5kIGludGVyLXN0YXRlIGRpc3B1dGUgcmVzb2x1dGlvbi4gRXNzZW50aWFsIGZvciBJbmRpYVx1MjAxOXMgZmVkZXJhdGVkIHBvbGl0eSB3aGVyZSBoZWFsdGggaXMgYSBzdGF0ZSBzdWJqZWN0LicgfSwKfTsKCmNvbnN0IGludGVyYWN0aW9ucyA9IFsKICAvLyBMMSDihpIgQWRhcHRlcgogIHsgZnJvbTonaGlzJywgICAgIHRvOidlZGdlYWRhcHRlcicsIGxhYmVsOidISVMgaW50ZWdyYXRlcyB2aWEgYWRhcHRlcicsICAgICAgdHlwZToncHJvdG9jb2wnLCBkZXNjOidGYWNpbGl0eSBISVMgY29ubmVjdHMgdG8gdGhlIENDTSBlY29zeXN0ZW0gdGhyb3VnaCB0aGUgRWRnZSBBZGFwdGVyLiBBbGwgY29vcmRpbmF0aW9uIGFjdGlvbnMgYXJlIG1lZGlhdGVkIGJ5IHRoZSBhZGFwdGVyXHUyMDE5cyBQcm90b2NvbCBIYW5kbGVyIG1vZHVsZS4nIH0sCiAgeyBmcm9tOidwaHInLCAgICAgdG86J2VkZ2VhZGFwdGVyJywgbGFiZWw6J1BIUiBpbnRlZ3JhdGVzIHZpYSBhZGFwdGVyJywgICAgICB0eXBlOidwcm90b2NvbCcsIGRlc2M6J1BIUiBhcHBzIGNvbm5lY3QgdG8gQ0NNIGNvb3JkaW5hdGlvbiBwcm90b2NvbHMgdmlhIHRoZSBFZGdlIEFkYXB0ZXIuIFRoZSBhZGFwdGVyIGhhbmRsZXMgRkhJUiB0cmFuc2xhdGlvbiBmb3Igbm9uLUZISVItbmF0aXZlIFBIUiBzeXN0ZW1zLicgfSwKICB7IGZyb206J2NodycsICAgICB0bzonZWRnZWFkYXB0ZXInLCBsYWJlbDonQ0hXIGFwcHMgaW50ZWdyYXRlIHZpYSBhZGFwdGVyJywgIHR5cGU6J3Byb3RvY29sJywgZGVzYzonQ29tbXVuaXR5IEhlYWx0aCBXb3JrZXIgYXBwcyB1c2UgdGhlIEVkZ2UgQWRhcHRlciB0byByZWdpc3RlciBmb2xsb3ctdXAgY29tcGxldGlvbnMsIHJlcG9ydCBzY3JlZW5pbmdzLCBhbmQgcmVjZWl2ZSBwb2xpY3ktZHJpdmVuIHRhc2sgYXNzaWdubWVudHMuJyB9LAogIHsgZnJvbTonY2ZjJywgICAgIHRvOidlZGdlYWRhcHRlcicsIGxhYmVsOidDRkMgaW50ZWdyYXRlcyB2aWEgYWRhcHRlcicsICAgICAgdHlwZToncHJvdG9jb2wnLCBkZXNjOidDYXJlIEZhY2lsaXRhdGlvbiBDZW50cmVzIGNvbm5lY3QgdGhyb3VnaCB0aGUgRWRnZSBBZGFwdGVyIHRvIGJvb2sgYXBwb2ludG1lbnRzLCBlc2NhbGF0ZSBvbiBiZWhhbGYgb2YgcGF0aWVudHMsIGFuZCByZWNlaXZlIHByb2FjdGl2ZSBvdXRyZWFjaCB0cmlnZ2Vycy4nIH0sCiAgeyBmcm9tOidsaW1zJywgICAgdG86J2VkZ2VhZGFwdGVyJywgbGFiZWw6J0xJTVMgaW50ZWdyYXRlcyB2aWEgYWRhcHRlcicsICAgICB0eXBlOidwcm90b2NvbCcsIGRlc2M6J0xJTVMvUGhhcm1hY3kgc3lzdGVtcyByb3V0ZSBkaWFnbm9zdGljIHJlc3VsdHMgYW5kIHByZXNjcmlwdGlvbiBmdWxmaWxtZW50IHRocm91Z2ggdGhlIEVkZ2UgQWRhcHRlclx1MjAxOXMgcHJvdG9jb2wgaGFuZGxlci4nIH0sCiAgeyBmcm9tOid0ZWxlY29uJywgdG86J2VkZ2VhZGFwdGVyJywgbGFiZWw6J1RlbGVjb25zdWx0IGludGVncmF0ZXMgdmlhIGFkYXB0ZXInLCB0eXBlOidwcm90b2NvbCcsIGRlc2M6J1RlbGVjb25zdWx0IHBsYXRmb3JtcyBzZW5kIHN0cnVjdHVyZWQgY29uc3VsdGF0aW9uIHJlY29yZHMgdGhyb3VnaCB0aGUgYWRhcHRlciBiYWNrIHRvIHRoZSBwYXRpZW50XHUyMDE5cyBwcmltYXJ5IGZhY2lsaXR5LicgfSwKCiAgLy8gQWRhcHRlciDihpIgUHJvdG9jb2wgcGlsbHMKICB7IGZyb206J2VkZ2VhZGFwdGVyJywgdG86J3JlZmVycmFsJywgICAgbGFiZWw6J1JlZmVycmFsIGV4Y2hhbmdlJywgICB0eXBlOidwcm90b2NvbCcsIGRlc2M6J1RoZSBFZGdlIEFkYXB0ZXJcdTIwMTlzIFByb3RvY29sIEhhbmRsZXIgaW1wbGVtZW50cyBwZWVyLXRvLXBlZXIgRkhJUiBTZXJ2aWNlUmVxdWVzdCBleGNoYW5nZSB3aXRoIHNpZ25lZCByZWNlaXB0IHByb3RvY29sLiBIYW5kbGVzIFNMQSB0aW1lciBtYW5hZ2VtZW50IGFuZCBhdXRvLWVzY2FsYXRpb24gb24gYnJlYWNoLicgfSwKICB7IGZyb206J2VkZ2VhZGFwdGVyJywgdG86J2FwcG9pbnRtZW50JywgbGFiZWw6J1Nsb3QgcHVibGlzaC9ib29rJywgICB0eXBlOidwcm90b2NvbCcsIGRlc2M6J0VkZ2UgQWRhcHRlciBtZWRpYXRlcyBzbG90IHB1Ymxpc2hpbmcgYW5kIGJvb2tpbmcuIENvbW1pdG1lbnQgcmVnaXN0ZXJlZCB3aXRoIEwzLiBIYW5kbGVzIHNpZ25lZCByZWNlaXB0IGV4Y2hhbmdlIGZvciBib29raW5nIGNvbmZpcm1hdGlvbnMuJyB9LAogIHsgZnJvbTonZWRnZWFkYXB0ZXInLCB0bzonY2FyZXBsYW4nLCAgICBsYWJlbDonQ2FyZSBwbGFuIGxpZmVjeWNsZScsICB0eXBlOidwcm90b2NvbCcsIGRlc2M6J0VkZ2UgQWRhcHRlciBtYW5hZ2VzIEZISVIgQ2FyZVBsYW4gdmVyc2lvbmluZywgY29uZmxpY3QgZGV0ZWN0aW9uIChvcHRpbWlzdGljIGNvbmN1cnJlbmN5KSwgY3Jvc3MtcGxhbiBub3RpZmljYXRpb24gdHJpZ2dlcmluZywgYW5kIG93bmVyc2hpcCB0cmFuc2ZlciBzaWduaW5nLicgfSwKICB7IGZyb206J2VkZ2VhZGFwdGVyJywgdG86J2ZvbGxvd3VwJywgICAgbGFiZWw6J0ZvbGxvdy11cCB0cmFja2luZycsICB0eXBlOidwcm90b2NvbCcsIGRlc2M6J0VkZ2UgQWRhcHRlciByZWdpc3RlcnMgZm9sbG93LXVwIGNvbW1pdG1lbnRzIHdpdGggTDMgYW5kIHJlY29yZHMgY29tcGxldGlvbnMuIE1hbmFnZXMgZHVlLWRhdGUgdHJhY2tpbmcgYW5kIGZ1bGZpbG1lbnQgc3RhdHVzIHJlcG9ydGluZy4nIH0sCiAgeyBmcm9tOidlZGdlYWRhcHRlcicsIHRvOidxdWFsaXR5JywgICAgIGxhYmVsOidRdWFsaXR5IHNpZ25hbHMnLCAgICAgdHlwZToncHJvdG9jb2wnLCBkZXNjOidFZGdlIEFkYXB0ZXIgc3RyaXBzIGNsaW5pY2FsIGNvbnRlbnQgZnJvbSBDRFNTLWRldGVjdGVkIFNURyBkZXZpYXRpb25zIGFuZCBlbWl0cyBtZXRhZGF0YS1vbmx5IHF1YWxpdHkgc2lnbmFscyB0aHJvdWdoIHRoZSBwcm90b2NvbCBzdWJzdHJhdGUuJyB9LAoKICAvLyBBZGFwdGVyIOKGkiBMMwogIHsgZnJvbTonZWRnZWFkYXB0ZXInLCB0bzoncG9saWN5cmVwbycsICBsYWJlbDonUXVlcmllcyBjb29yZGluYXRpb24gcnVsZXMnLCAgdHlwZToncG9saWN5JywgICAgZGVzYzonRWRnZSBBZGFwdGVyXHUyMDE5cyBQb2xpY3kgQ2xpZW50IG1vZHVsZSBxdWVyaWVzIEwzIFBvbGljeSBSZXBvc2l0b3J5IGluIHJlYWwtdGltZSBiZWZvcmUgaW5pdGlhdGluZyBjb29yZGluYXRpb24gYWN0aW9ucy4gUmVzdWx0cyBjYWNoZWQgbG9jYWxseSBmb3Igb2ZmbGluZSBvcGVyYXRpb24uJyB9LAogIHsgZnJvbTonZWRnZWFkYXB0ZXInLCB0bzonZXNjYWxhdGlvbicsICBsYWJlbDonQ291bnRlci1wYXJ0eSBlc2NhbGF0aW9ucycsICAgdHlwZTonbWV0YWRhdGEnLCAgZGVzYzonRWRnZSBBZGFwdGVyXHUyMDE5cyBFdmVudCBFbWl0dGVyIHJlcG9ydHMgU0xBIGJyZWFjaGVzIHdpdGggc2lnbmVkIHRyYW5zYWN0aW9uIGhhc2hlcy4gVGhlIGVudGl0eSB3YWl0aW5nIGZvciBzb21ldGhpbmcgcmVwb3J0cyB3aGVuIGl0IGRvZXNuXHUyMDE5dCBoYXBwZW4uJyB9LAogIHsgZnJvbTonZWRnZWFkYXB0ZXInLCB0bzonZGlzcHV0ZScsICAgICBsYWJlbDonRGlzcHV0ZSBzdWJtaXNzaW9ucycsICAgICAgICAgdHlwZTonbWV0YWRhdGEnLCAgZGVzYzonRWRnZSBBZGFwdGVyIHN1Ym1pdHMgZGlzcHV0ZXMgKHJlZmVycmFsLCBjYXJlIHBsYW4sIHF1YWxpdHkgZmxhZywgZmluYW5jaWFsKSB3aXRoIHNpZ25lZCBjcnlwdG9ncmFwaGljIGV2aWRlbmNlLiBMMyBhZGp1ZGljYXRlcyBmcm9tIHNpZ25lZCBoYXNoZXMuJyB9LAogIHsgZnJvbTonZWRnZWFkYXB0ZXInLCB0bzonYW5hbHl0aWNzJywgICBsYWJlbDonQ29tbWl0bWVudCByZWdpc3RyYXRpb25zJywgICAgdHlwZTonbWV0YWRhdGEnLCAgZGVzYzonRWRnZSBBZGFwdGVyIHJlZ2lzdGVycyBjb29yZGluYXRpb24gY29tbWl0bWVudHMgYXMgc3RydWN0dXJlZCBtZXRhZGF0YSBldmVudHMuIEJ1aWxkcyBMM1x1MjAxOXMgZXhwZWN0YXRpb25zIHJlZ2lzdGVyIHRoYXQgcG93ZXJzIGVzY2FsYXRpb24gYW5kIGFuYWx5dGljcy4nIH0sCgogIC8vIFByb3RvY29sIHBpbGxzIOKGkiBMMyAocHJvdG9jb2xzIGZlZWQgb2JzZXJ2YXRpb24pCiAgeyBmcm9tOidyZWZlcnJhbCcsICAgIHRvOidlc2NhbGF0aW9uJywgbGFiZWw6J1JlZmVycmFsIFNMQSB0cmFja2luZycsICAgIHR5cGU6J21ldGFkYXRhJywgZGVzYzonUmVmZXJyYWwgY29tbWl0bWVudHMgYXJlIHRyYWNrZWQgYnkgTDMuIFdoZW4gU0xBIGJyZWFjaGVzIG9jY3VyLCB0aGUgZXNjYWxhdGlvbiBlbmdpbmUgaXMgdHJpZ2dlcmVkIHdpdGggc2lnbmVkIGhhc2ggZXZpZGVuY2UuJyB9LAogIHsgZnJvbTonZm9sbG93dXAnLCAgICB0bzonZXNjYWxhdGlvbicsIGxhYmVsOidGb2xsb3ctdXAgZHVlIGRhdGUgbW9uaXRvcmluZycsIHR5cGU6J21ldGFkYXRhJywgZGVzYzonRm9sbG93LXVwIHByb3RvY29sIGNvbW1pdG1lbnRzIGZlZWQgTDNcdTIwMTlzIGV4cGVjdGF0aW9ucyByZWdpc3Rlci4gV2hlbiBkdWUgZGF0ZXMgcGFzcywgTDMgcHJvYWN0aXZlbHkgcXVlcmllcyBlZGdlcyBvciB0cmlnZ2VycyBvdXRyZWFjaC4nIH0sCiAgeyBmcm9tOidxdWFsaXR5JywgICAgIHRvOidkaXNwdXRlJywgICAgbGFiZWw6J0RldmlhdGlvbiBjb250ZXN0YXRpb25zJywgdHlwZTonbWV0YWRhdGEnLCBkZXNjOidRdWFsaXR5IHNpZ25hbCBmbGFncyBjYW4gYmUgY29udGVzdGVkIGJ5IHByb3ZpZGVycywgcm91dGVkIHRocm91Z2ggZGlzcHV0ZSByZXNvbHV0aW9uIHdpdGggdGhlIG9yaWdpbmFsIG1ldGFkYXRhIGV2aWRlbmNlLicgfSwKICB7IGZyb206J2NhcmVwbGFuJywgICAgdG86J2Rpc3B1dGUnLCAgICBsYWJlbDonQ2FyZSBwbGFuIGNvbmZsaWN0cycsICAgICB0eXBlOidtZXRhZGF0YScsIGRlc2M6J1doZW4gcGh5c2ljaWFucyBjYW5ub3QgcmVzb2x2ZSBjYXJlIHBsYW4gY29uZmxpY3RzIGJpbGF0ZXJhbGx5LCB0aGV5IGVzY2FsYXRlIHRocm91Z2ggdGhlIGRpc3B1dGUgcmVzb2x1dGlvbiBzZXJ2aWNlIHdpdGggbWV0YWRhdGEtc2NvcGVkIGRldGFpbHMuJyB9LAoKICAvLyBMMyBpbnRlcm5hbAogIHsgZnJvbTonZXNjYWxhdGlvbicsIHRvOidhbmFseXRpY3MnLCBsYWJlbDonU0xBIGJyZWFjaCBwYXR0ZXJucycsIHR5cGU6J21ldGFkYXRhJywgZGVzYzonRXNjYWxhdGlvbiBvdXRjb21lcyBhbmQgU0xBIGJyZWFjaCBwYXR0ZXJucyBmZWVkIGludG8gcG9wdWxhdGlvbiBhbmFseXRpY3MgZm9yIFdITy1SQUcgZGFzaGJvYXJkIGNvbXB1dGF0aW9uIGFuZCBQSFdTIHNjb3JpbmcuJyB9LAoKICAvLyBMMyDihpIgb3V0Ym91bmQKICB7IGZyb206J2VzY2FsYXRpb24nLCB0bzonZWRnZWFkYXB0ZXInLCBsYWJlbDonUHJvYWN0aXZlIG91dHJlYWNoIHRyaWdnZXJzJywgdHlwZTonbWV0YWRhdGEnLCBkZXNjOidXaGVuIGZvbGxvdy11cCBjb21taXRtZW50IGR1ZSBkYXRlcyBleHBpcmUsIEwzIHRyaWdnZXJzIHByb2FjdGl2ZSBvdXRyZWFjaCB2aWEgRWRnZSBBZGFwdGVyIHRvIENGQy9jYWxsIGNlbnRyZSBjaGFubmVscy4nIH0sCgogIC8vIEwzIOKGlCBMNAogIHsgZnJvbTonYW5hbHl0aWNzJywgICAgIHRvOidzdGF0ZXBvbGljeScsICAgbGFiZWw6J1BIV1MgLyBXSE8tUkFHIGRhc2hib2FyZHMnLCAgdHlwZTonbWV0YWRhdGEnLCBkZXNjOidQb3B1bGF0aW9uIEhlYWx0aCAmIFdlbGxuZXNzIFNjb3JlcyBhbmQgV0hPLVJBRyBkYXNoYm9hcmRzIGZsb3cgZG93biB0byBMNCBHb3Zlcm5hbmNlIHRvIGluZm9ybSBwb2xpY3kgZGVjaXNpb25zLicgfSwKICB7IGZyb206J3N0YXRlcG9saWN5JywgICB0bzoncG9saWN5cmVwbycsICAgIGxhYmVsOidEZWZpbmVzIGNvb3JkaW5hdGlvbiBydWxlcycsIHR5cGU6J3BvbGljeScsICAgZGVzYzonTDQgR292ZXJuYW5jZSBkZWZpbmVzIGFuZCBhcHByb3ZlcyBjb29yZGluYXRpb24gcG9saWNpZXMgKFNMQXMsIHJvdXRpbmcgcnVsZXMsIGVzY2FsYXRpb24gdGllcnMpLiBMMyBwdWJsaXNoZXMgYW5kIHNlcnZlcyB0aGVtIHRvIGVkZ2VzLicgfSwKICB7IGZyb206J2ZpbmFuY2luZycsICAgICB0bzonZGlzcHV0ZScsICAgICAgIGxhYmVsOidGaW5hbmNpYWwgZGlzcHV0ZSBydWxlcycsICAgIHR5cGU6J3BvbGljeScsICAgZGVzYzonRmluYW5jaW5nIHJ1bGVzIGRlZmluZSBob3cgZmluYW5jaWFsIGRpc3B1dGVzIGFyZSBhZGp1ZGljYXRlZCBcdTIwMTQgYW5hbG9nb3VzIHRvIGhlYWx0aCBjbGFpbXMgZXhjaGFuZ2UgKGUuZy4sIEhDWCBpbiBJbmRpYSkuJyB9LAogIHsgZnJvbTonY2VydGlmaWNhdGlvbicsIHRvOidwb2xpY3lyZXBvJywgICAgbGFiZWw6J01hdHVyaXR5IHJlcXVpcmVtZW50cycsICAgICAgdHlwZToncG9saWN5JywgICBkZXNjOidDQ00tUmVhZHkgY2VydGlmaWNhdGlvbiBjcml0ZXJpYSBmZWVkIGludG8gdGhlIHBvbGljeSByZXBvc2l0b3J5LiBEZXRlcm1pbmVzIHdoaWNoIGZlYXR1cmVzIGEgZmFjaWxpdHkgY2FuIHVzZSBiYXNlZCBvbiBkaWdpdGFsIG1hdHVyaXR5IHBoYXNlLicgfSwKCiAgLy8gUGVlci10by1wZWVyIGNsaW5pY2FsIChMMSDihpQgTDEpCiAgeyBmcm9tOidoaXMnLCB0bzoncGhyJywgbGFiZWw6J0NsaW5pY2FsIGRhdGEgdmlhIEhJRSBjb25zZW50JywgdHlwZTonY2xpbmljYWwnLCBkZXNjOidDbGluaWNhbCBkYXRhIG1vdmVzIHBlZXItdG8tcGVlciBiZXR3ZWVuIEhJUyBhbmQgUEhSIHZpYSBuYXRpb25hbCBISUUgKGUuZy4sIEFCRE0gSElFLUNNKSB3aXRoIHBhdGllbnQgY29uc2VudC4gTm8gY2VudHJhbCBkYXRhIGxha2UuIERhdGEgc3RheXMgYXQgdGhlIGVkZ2VzLicgfSwKICB7IGZyb206J3RlbGVjb24nLCB0bzonaGlzJywgbGFiZWw6J0NvbnN1bHRhdGlvbiByZWNvcmRzJywgdHlwZTonY2xpbmljYWwnLCBkZXNjOidUZWxlY29uc3VsdCBwbGF0Zm9ybXMgc2VuZCBzdHJ1Y3R1cmVkIGNvbnN1bHRhdGlvbiByZWNvcmRzICh2aWEgU0NSSUJFKSBiYWNrIHRvIHRoZSBwYXRpZW50XHUyMDE5cyBwcmltYXJ5IGZhY2lsaXR5IEhJUy4nIH0sCl07Cgpjb25zdCBmbG93TGVnZW5kID0gWwogIHsgdHlwZTonY2xpbmljYWwnLCBjb2xvcjogQ09MT1JTLmZsb3cuY2xpbmljYWwsIGxhYmVsOidDbGluaWNhbCBkYXRhIChwZWVyLXRvLXBlZXIgdmlhIEhJRSknIH0sCiAgeyB0eXBlOidwcm90b2NvbCcsIGNvbG9yOiBDT0xPUlMuZmxvdy5wcm90b2NvbCwgbGFiZWw6J1Byb3RvY29sIHN1YnN0cmF0ZSBpbnRlcmFjdGlvbnMnIH0sCiAgeyB0eXBlOidtZXRhZGF0YScsIGNvbG9yOiBDT0xPUlMuZmxvdy5tZXRhZGF0YSwgbGFiZWw6J01ldGFkYXRhIC8gZXNjYWxhdGlvbnMgKHRvIEwzKScgfSwKICB7IHR5cGU6J3BvbGljeScsICAgY29sb3I6IENPTE9SUy5mbG93LnBvbGljeSwgICBsYWJlbDonUG9saWN5IC8gZ292ZXJuYW5jZSBydWxlcycgfSwKXTsKCmxldCBzZWxlY3RlZCA9IG51bGw7CmxldCBzZWxlY3RlZEludCA9IG51bGw7CmxldCBob3ZlcmVkRmxvdyA9IG51bGw7Cgpjb25zdCBkaWFncmFtID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2RpYWdyYW0nKTsKY29uc3Qgc2lkZWJhciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdzaWRlYmFyJyk7CmNvbnN0IGludExpc3QgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnaW50LWxpc3QnKTsKY29uc3QgaW50SGVhZGluZyA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdpbnQtaGVhZGluZycpOwpjb25zdCBsZWdlbmRFbCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsZWdlbmQnKTsKCi8vIExlZ2VuZApmbG93TGVnZW5kLmZvckVhY2goZiA9PiB7CiAgY29uc3QgZWwgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKICBlbC5jbGFzc05hbWUgPSAnbGVnZW5kLWl0ZW0nOwogIGVsLnN0eWxlLnNldFByb3BlcnR5KCctLWxjJywgZi5jb2xvcik7CiAgZWwuc3R5bGUuc2V0UHJvcGVydHkoJy0tbGMtYmcnLCBmLmNvbG9yICsgJzE4Jyk7CiAgZWwuaW5uZXJIVE1MID0gYDxkaXYgY2xhc3M9ImxlZ2VuZC1kb3QiIHN0eWxlPSJiYWNrZ3JvdW5kOiR7Zi5jb2xvcn0iPjwvZGl2PiR7Zi5sYWJlbH1gOwogIGVsLmFkZEV2ZW50TGlzdGVuZXIoJ21vdXNlZW50ZXInLCAoKSA9PiB7IGhvdmVyZWRGbG93ID0gZi50eXBlOyBlbC5jbGFzc0xpc3QuYWRkKCdhY3RpdmUnKTsgcmVuZGVyKCk7IH0pOwogIGVsLmFkZEV2ZW50TGlzdGVuZXIoJ21vdXNlbGVhdmUnLCAoKSA9PiB7IGhvdmVyZWRGbG93ID0gbnVsbDsgZWwuY2xhc3NMaXN0LnJlbW92ZSgnYWN0aXZlJyk7IHJlbmRlcigpOyB9KTsKICBsZWdlbmRFbC5hcHBlbmRDaGlsZChlbCk7Cn0pOwoKLy8gU3Vic3RyYXRlIHdhdGVybWFyayBsYWJlbHMKY29uc3Qgc3ViTGFiZWxzID0gWwogIHsgdGV4dDogJ0NPT1JESU5BVElPTiBQUk9UT0NPTFMnLCB4OiAyNjAsIHk6IDI5MCwgc2l6ZTogJzEzcHgnLCBzcGFjaW5nOiAnNHB4JyB9LAogIHsgdGV4dDogJ0lOVEVST1BFUkFCSUxJVFkgU1VCU1RSQVRFJywgeDogMjcwLCB5OiAzMDgsIHNpemU6ICc5cHgnLCBzcGFjaW5nOiAnMnB4JyB9LApdOwpzdWJMYWJlbHMuZm9yRWFjaChzbCA9PiB7CiAgY29uc3QgZWwgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKICBlbC5jbGFzc05hbWUgPSAnc3Vic3RyYXRlLWxhYmVsJzsKICBlbC5zdHlsZS5jc3NUZXh0ID0gYGxlZnQ6JHtzbC54fXB4O3RvcDoke3NsLnl9cHg7Zm9udC1zaXplOiR7c2wuc2l6ZX07bGV0dGVyLXNwYWNpbmc6JHtzbC5zcGFjaW5nfTtgOwogIGVsLnRleHRDb250ZW50ID0gc2wudGV4dDsKICBkaWFncmFtLmFwcGVuZENoaWxkKGVsKTsKfSk7CgovLyBMYXllciBiYWNrZ3JvdW5kcyAoTDEsIEwzLCBMNCDigJQgbm90IEwyLCB3aGljaCBpcyB0aGUgc3Vic3RyYXRlIGl0c2VsZikKWydsMScsJ2wzJywnbDQnXS5mb3JFYWNoKGxheWVyID0+IHsKICBjb25zdCBpbmZvID0gbGF5ZXJJbmZvW2xheWVyXTsKICBjb25zdCBjID0gQ09MT1JTW2xheWVyXSB8fCBDT0xPUlMubDE7CiAgY29uc3QgZGl2ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7CiAgZGl2LmNsYXNzTmFtZSA9ICdsYXllci1iZyc7CiAgZGl2LnN0eWxlLmNzc1RleHQgPSBgdG9wOiR7aW5mby55fXB4O2hlaWdodDoke2luZm8uaH1weDtiYWNrZ3JvdW5kOiR7Yy5iZ31kZDtib3JkZXItY29sb3I6JHtjLmJvcmRlcn01NTtib3JkZXItc3R5bGU6c29saWQ7YDsKICBkaXYuaW5uZXJIVE1MID0gYDxkaXYgY2xhc3M9ImxheWVyLWxhYmVsIiBzdHlsZT0iY29sb3I6JHtjLnRleHR9Ij4ke2luZm8ubGFiZWx9PC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJsYXllci1hbmFsb2d5IiBzdHlsZT0iY29sb3I6JHtjLnRleHR9Ij4ke2luZm8uYW5hbG9neX08L2Rpdj5gOwogIGRpYWdyYW0uYXBwZW5kQ2hpbGQoZGl2KTsKfSk7CgovLyBBZGFwdGVyIHN0cmlwIGJhY2tncm91bmQKY29uc3QgYWRJbmZvID0gbGF5ZXJJbmZvLmFkYXB0ZXI7CmNvbnN0IGFkQmcgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKYWRCZy5jbGFzc05hbWUgPSAnbGF5ZXItYmcnOwphZEJnLnN0eWxlLmNzc1RleHQgPSBgdG9wOiR7YWRJbmZvLnl9cHg7aGVpZ2h0OiR7YWRJbmZvLmh9cHg7YmFja2dyb3VuZDoke0NPTE9SUy5hZGFwdGVyLmJnfTtib3JkZXI6MS41cHggc29saWQgJHtDT0xPUlMuYWRhcHRlci5ib3JkZXJ9ODg7YDsKZGlhZ3JhbS5hcHBlbmRDaGlsZChhZEJnKTsKCi8vIFNWRwpjb25zdCBzdmcgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50TlMoJ2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJywgJ3N2ZycpOwpzdmcuY2xhc3NMaXN0LmFkZCgnZGlhZ3JhbS1zdmcnKTsKc3ZnLmlubmVySFRNTCA9IGA8ZGVmcz4KICAke09iamVjdC5lbnRyaWVzKENPTE9SUy5mbG93KS5tYXAoKFtrLHZdKSA9PiBgPG1hcmtlciBpZD0iYXJyLSR7a30iIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjUiIHJlZlg9IjYiIHJlZlk9IjIuNSIgb3JpZW50PSJhdXRvIj48cGF0aCBkPSJNMCwwIEw3LDIuNSBMMCw1IiBmaWxsPSIke3Z9Ii8+PC9tYXJrZXI+YCkuam9pbignJyl9CjwvZGVmcz5gOwpkaWFncmFtLmFwcGVuZENoaWxkKHN2Zyk7CgovLyBCdWlsZCBjb21wb25lbnQgYm94ZXMKY29uc3QgY29tcEVscyA9IHt9OwpPYmplY3QudmFsdWVzKGNvbXBvbmVudHMpLmZvckVhY2goY29tcCA9PiB7CiAgaWYgKGNvbXAuaXNTdHJpcCB8fCBjb21wLmlzUGlsbCkgcmV0dXJuOwogIGNvbnN0IGMgPSBDT0xPUlNbY29tcC5sYXllcl0gfHwgQ09MT1JTLmwxOwogIGNvbnN0IGVsID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7CiAgZWwuY2xhc3NOYW1lID0gJ2NvbXAnOwogIGVsLmlkID0gJ2NvbXAtJyArIGNvbXAuaWQ7CiAgZWwuc3R5bGUuY3NzVGV4dCA9IGBsZWZ0OiR7Y29tcC54fXB4O3RvcDoke2NvbXAueX1weDt3aWR0aDoke2NvbXAud31weDtoZWlnaHQ6JHtjb21wLmh9cHg7CiAgICBiYWNrZ3JvdW5kOiR7Yy5iZ307Ym9yZGVyOjEuNXB4IHNvbGlkICR7Yy5ib3JkZXJ9O2A7CiAgZWwuaW5uZXJIVE1MID0gYDxzcGFuIHN0eWxlPSJjb2xvcjoke2MudGV4dH0iPiR7Y29tcC5sYWJlbH08L3NwYW4+YDsKICBlbC5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsIChlKSA9PiB7IGUuc3RvcFByb3BhZ2F0aW9uKCk7IHRvZ2dsZVNlbGVjdChjb21wLmlkKTsgfSk7CiAgZGlhZ3JhbS5hcHBlbmRDaGlsZChlbCk7CiAgY29tcEVsc1tjb21wLmlkXSA9IGVsOwp9KTsKCi8vIEJ1aWxkIHByb3RvY29sIHBpbGxzCk9iamVjdC52YWx1ZXMoY29tcG9uZW50cykuZmlsdGVyKGMgPT4gYy5pc1BpbGwpLmZvckVhY2goY29tcCA9PiB7CiAgY29uc3QgZWwgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKICBlbC5jbGFzc05hbWUgPSAncHJvdG9jb2wtcGlsbCc7CiAgZWwuaWQgPSAnY29tcC0nICsgY29tcC5pZDsKICBlbC5zdHlsZS5jc3NUZXh0ID0gYGxlZnQ6JHtjb21wLnh9cHg7dG9wOiR7Y29tcC55fXB4O3dpZHRoOiR7Y29tcC53fXB4O2hlaWdodDoke2NvbXAuaH1weDsKICAgIGJhY2tncm91bmQ6cmdiYSgyNTUsMjU1LDI1NSwwLjM1KTtib3JkZXI6MS41cHggZGFzaGVkICR7Q09MT1JTLnByb3RvY29sLmJvcmRlcn01NTtjb2xvcjoke0NPTE9SUy5wcm90b2NvbC50ZXh0fTtgOwogIGVsLnRleHRDb250ZW50ID0gY29tcC5sYWJlbDsKICBlbC5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsIChlKSA9PiB7IGUuc3RvcFByb3BhZ2F0aW9uKCk7IHRvZ2dsZVNlbGVjdChjb21wLmlkKTsgfSk7CiAgZGlhZ3JhbS5hcHBlbmRDaGlsZChlbCk7CiAgY29tcEVsc1tjb21wLmlkXSA9IGVsOwp9KTsKCi8vIEJ1aWxkIGFkYXB0ZXIgc3RyaXAKY29uc3QgYWRhcHRlckNvbXAgPSBjb21wb25lbnRzLmVkZ2VhZGFwdGVyOwpjb25zdCBhZGFwdGVyRWwgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKYWRhcHRlckVsLmNsYXNzTmFtZSA9ICdhZGFwdGVyLXN0cmlwJzsKYWRhcHRlckVsLmlkID0gJ2NvbXAtZWRnZWFkYXB0ZXInOwphZGFwdGVyRWwuc3R5bGUuY3NzVGV4dCA9IGBsZWZ0OjE0cHg7cmlnaHQ6MTRweDt0b3A6JHthZGFwdGVyQ29tcC55fXB4O2hlaWdodDoke2FkYXB0ZXJDb21wLmh9cHg7CiAgYmFja2dyb3VuZDoke0NPTE9SUy5hZGFwdGVyLmJnfTtib3JkZXI6MS41cHggc29saWQgJHtDT0xPUlMuYWRhcHRlci5ib3JkZXJ9O2A7CmFkYXB0ZXJFbC5pbm5lckhUTUwgPSBgPHNwYW4gY2xhc3M9ImFkYXB0ZXItbGFiZWwiIHN0eWxlPSJjb2xvcjoke0NPTE9SUy5hZGFwdGVyLnRleHR9Ij5DQ00gRWRnZSBBZGFwdGVyPC9zcGFuPgogIDxzcGFuIGNsYXNzPSJhZGFwdGVyLXN1YmxhYmVsIiBzdHlsZT0iY29sb3I6JHtDT0xPUlMuYWRhcHRlci50ZXh0fSI+U0RLIG9yIEVkZ2UgU2VydmljZSBcdTIwMTQgZ2F0ZXdheSB0byBDQ00gZWNvc3lzdGVtPC9zcGFuPmA7CmFkYXB0ZXJFbC5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsIChlKSA9PiB7IGUuc3RvcFByb3BhZ2F0aW9uKCk7IHRvZ2dsZVNlbGVjdCgnZWRnZWFkYXB0ZXInKTsgfSk7CmRpYWdyYW0uYXBwZW5kQ2hpbGQoYWRhcHRlckVsKTsKY29tcEVsc1snZWRnZWFkYXB0ZXInXSA9IGFkYXB0ZXJFbDsKCmRpYWdyYW0uYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCAoKSA9PiB7IHNlbGVjdGVkID0gbnVsbDsgc2VsZWN0ZWRJbnQgPSBudWxsOyByZW5kZXIoKTsgfSk7CgpmdW5jdGlvbiB0b2dnbGVTZWxlY3QoaWQpIHsKICBpZiAoc2VsZWN0ZWQgPT09IGlkKSB7IHNlbGVjdGVkID0gbnVsbDsgc2VsZWN0ZWRJbnQgPSBudWxsOyB9CiAgZWxzZSB7IHNlbGVjdGVkID0gaWQ7IHNlbGVjdGVkSW50ID0gbnVsbDsgfQogIHJlbmRlcigpOwp9CgpmdW5jdGlvbiBnZXRDb25uZWN0ZWRJZHMoKSB7CiAgaWYgKCFzZWxlY3RlZCkgcmV0dXJuIG51bGw7CiAgY29uc3QgaWRzID0gbmV3IFNldCgpOwogIGludGVyYWN0aW9ucy5mb3JFYWNoKGkgPT4gewogICAgaWYgKGkuZnJvbSA9PT0gc2VsZWN0ZWQgfHwgaS50byA9PT0gc2VsZWN0ZWQpIHsgaWRzLmFkZChpLmZyb20pOyBpZHMuYWRkKGkudG8pOyB9CiAgfSk7CiAgcmV0dXJuIGlkczsKfQoKZnVuY3Rpb24gcmVuZGVyU1ZHKCkgewogIHN2Zy5xdWVyeVNlbGVjdG9yQWxsKCdwYXRoLmNvbm4nKS5mb3JFYWNoKHAgPT4gcC5yZW1vdmUoKSk7CiAgY29uc3QgY29ubmVjdGVkSWRzID0gZ2V0Q29ubmVjdGVkSWRzKCk7CiAgY29uc3QgYWN0aXZlSW50cyA9IHNlbGVjdGVkCiAgICA/IGludGVyYWN0aW9ucy5maWx0ZXIoaSA9PiBpLmZyb20gPT09IHNlbGVjdGVkIHx8IGkudG8gPT09IHNlbGVjdGVkKQogICAgOiBob3ZlcmVkRmxvdwogICAgPyBpbnRlcmFjdGlvbnMuZmlsdGVyKGkgPT4gaS50eXBlID09PSBob3ZlcmVkRmxvdykKICAgIDogaW50ZXJhY3Rpb25zOwoKICBhY3RpdmVJbnRzLmZvckVhY2goaW50ID0+IHsKICAgIGNvbnN0IGZyb20gPSBjb21wb25lbnRzW2ludC5mcm9tXTsKICAgIGNvbnN0IHRvID0gY29tcG9uZW50c1tpbnQudG9dOwogICAgaWYgKCFmcm9tIHx8ICF0bykgcmV0dXJuOwoKICAgIGxldCB4MSwgeTEsIHgyLCB5MjsKICAgIGlmIChmcm9tLmlzU3RyaXApIHsKICAgICAgeDEgPSB0by54ICsgdG8udyAvIDI7IHkxID0gZnJvbS55ICsgZnJvbS5oIC8gMjsKICAgICAgeDIgPSB0by54ICsgdG8udyAvIDI7IHkyID0gdG8ueSArICh0by5pc1BpbGwgPyB0by5oIC8gMiA6IHRvLmggLyAyKTsKICAgIH0gZWxzZSBpZiAodG8uaXNTdHJpcCkgewogICAgICB4MSA9IGZyb20ueCArIGZyb20udyAvIDI7IHkxID0gZnJvbS55ICsgZnJvbS5oIC8gMjsKICAgICAgeDIgPSBmcm9tLnggKyBmcm9tLncgLyAyOyB5MiA9IHRvLnkgKyB0by5oIC8gMjsKICAgIH0gZWxzZSB7CiAgICAgIHgxID0gZnJvbS54ICsgZnJvbS53IC8gMjsgeTEgPSBmcm9tLnkgKyBmcm9tLmggLyAyOwogICAgICB4MiA9IHRvLnggKyB0by53IC8gMjsgeTIgPSB0by55ICsgdG8uaCAvIDI7CiAgICB9CgogICAgY29uc3QgaXNBY3RpdmUgPSAhc2VsZWN0ZWQgfHwgKGNvbm5lY3RlZElkcyAmJiBjb25uZWN0ZWRJZHMuaGFzKGludC5mcm9tKSAmJiBjb25uZWN0ZWRJZHMuaGFzKGludC50bykpOwogICAgY29uc3Qgb3BhY2l0eSA9IHNlbGVjdGVkID8gKGlzQWN0aXZlID8gMC43IDogMC4wNSkgOiBob3ZlcmVkRmxvdyA/IDAuNzUgOiAwLjI7CiAgICBjb25zdCBzdyA9IHNlbGVjdGVkICYmIGlzQWN0aXZlID8gMi4yIDogMS4yOwoKICAgIGNvbnN0IGR4ID0geDIgLSB4MSwgZHkgPSB5MiAtIHkxOwogICAgY29uc3QgaXNWZXJ0ID0gTWF0aC5hYnMoZHgpIDwgMTA7CiAgICBjb25zdCBteCA9ICh4MSt4MikvMiwgbXkgPSAoeTEreTIpLzI7CiAgICBjb25zdCBvZmYgPSAyMDsKICAgIGNvbnN0IGN4ID0gaXNWZXJ0ID8geDEgOiBteCArIChkeSA+IDAgPyAtb2ZmIDogb2ZmKTsKICAgIGNvbnN0IGN5ID0gaXNWZXJ0ID8gbXkgOiBteSArIChkeCA+IDAgPyBvZmYgOiAtb2ZmKTsKCiAgICBjb25zdCBwYXRoID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudE5TKCdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZycsICdwYXRoJyk7CiAgICBwYXRoLmNsYXNzTGlzdC5hZGQoJ2Nvbm4nKTsKICAgIHBhdGguc2V0QXR0cmlidXRlKCdkJywgaXNWZXJ0ID8gYE0ke3gxfSwke3kxfSBMJHt4Mn0sJHt5Mn1gIDogYE0ke3gxfSwke3kxfSBRJHtjeH0sJHtjeX0gJHt4Mn0sJHt5Mn1gKTsKICAgIHBhdGguc2V0QXR0cmlidXRlKCdmaWxsJywgJ25vbmUnKTsKICAgIHBhdGguc2V0QXR0cmlidXRlKCdzdHJva2UnLCBDT0xPUlMuZmxvd1tpbnQudHlwZV0pOwogICAgcGF0aC5zZXRBdHRyaWJ1dGUoJ3N0cm9rZS13aWR0aCcsIHN3KTsKICAgIHBhdGguc2V0QXR0cmlidXRlKCdvcGFjaXR5Jywgb3BhY2l0eSk7CiAgICBwYXRoLnNldEF0dHJpYnV0ZSgnbWFya2VyLWVuZCcsIGB1cmwoI2Fyci0ke2ludC50eXBlfSlgKTsKICAgIGlmIChpbnQudHlwZSA9PT0gJ3BvbGljeScpIHBhdGguc2V0QXR0cmlidXRlKCdzdHJva2UtZGFzaGFycmF5JywgJzUsMycpOwogICAgc3ZnLmFwcGVuZENoaWxkKHBhdGgpOwogIH0pOwp9CgpmdW5jdGlvbiByZW5kZXJDb21wb25lbnRzKCkgewogIGNvbnN0IGNvbm5lY3RlZElkcyA9IGdldENvbm5lY3RlZElkcygpOwogIE9iamVjdC52YWx1ZXMoY29tcG9uZW50cykuZm9yRWFjaChjb21wID0+IHsKICAgIGNvbnN0IGVsID0gY29tcEVsc1tjb21wLmlkXTsKICAgIGlmICghZWwpIHJldHVybjsKICAgIGNvbnN0IGlzU2VsID0gc2VsZWN0ZWQgPT09IGNvbXAuaWQ7CiAgICBjb25zdCBpc0hsID0gY29ubmVjdGVkSWRzICYmIGNvbm5lY3RlZElkcy5oYXMoY29tcC5pZCk7CiAgICBjb25zdCBkaW1tZWQgPSBzZWxlY3RlZCAmJiAhaXNTZWwgJiYgIWlzSGw7CgogICAgaWYgKGNvbXAuaXNTdHJpcCkgewogICAgICBjb25zdCBjID0gQ09MT1JTLmFkYXB0ZXI7CiAgICAgIGVsLmNsYXNzTmFtZSA9ICdhZGFwdGVyLXN0cmlwJyArIChpc1NlbCA/ICcgc2VsZWN0ZWQnIDogJycpICsgKGRpbW1lZCA/ICcgZGltbWVkJyA6ICcnKTsKICAgICAgZWwuc3R5bGUuYmFja2dyb3VuZCA9IGlzU2VsID8gYy5saWdodCA6IGMuYmc7CiAgICAgIGVsLnN0eWxlLmJvcmRlciA9IGlzU2VsID8gYDNweCBzb2xpZCAke2MudGV4dH1gIDogaXNIbCA/IGAycHggc29saWQgJHtjLmJvcmRlcn1gIDogYDEuNXB4IHNvbGlkICR7Yy5ib3JkZXJ9YDsKICAgICAgZWwuc3R5bGUuYm94U2hhZG93ID0gaXNTZWwgPyBgMCAwIDE0cHggJHtjLmJvcmRlcn04OGAgOiBpc0hsID8gYDAgMCA4cHggJHtjLmJvcmRlcn00NGAgOiAnbm9uZSc7CiAgICB9IGVsc2UgaWYgKGNvbXAuaXNQaWxsKSB7CiAgICAgIGNvbnN0IGMgPSBDT0xPUlMucHJvdG9jb2w7CiAgICAgIGVsLmNsYXNzTmFtZSA9ICdwcm90b2NvbC1waWxsJyArIChpc1NlbCA/ICcgc2VsZWN0ZWQnIDogJycpICsgKGlzSGwgJiYgIWlzU2VsID8gJyBoaWdobGlnaHRlZCcgOiAnJykgKyAoZGltbWVkID8gJyBkaW1tZWQnIDogJycpOwogICAgICBlbC5zdHlsZS5iYWNrZ3JvdW5kID0gaXNTZWwgPyBjLmxpZ2h0IDogJ3JnYmEoMjU1LDI1NSwyNTUsMC4zNSknOwogICAgICBlbC5zdHlsZS5ib3JkZXIgPSBpc1NlbCA/IGAyLjVweCBzb2xpZCAke2MudGV4dH1gIDogaXNIbCA/IGAycHggc29saWQgJHtjLmJvcmRlcn1gIDogYDEuNXB4IGRhc2hlZCAke2MuYm9yZGVyfTU1YDsKICAgICAgZWwuc3R5bGUuYm94U2hhZG93ID0gaXNTZWwgPyBgMCAwIDEycHggJHtjLmJvcmRlcn04OGAgOiBpc0hsID8gYDAgMCA4cHggJHtjLmJvcmRlcn00NGAgOiAnbm9uZSc7CiAgICB9IGVsc2UgewogICAgICBjb25zdCBjID0gQ09MT1JTW2NvbXAubGF5ZXJdIHx8IENPTE9SUy5sMTsKICAgICAgZWwuY2xhc3NOYW1lID0gJ2NvbXAnICsgKGlzU2VsID8gJyBzZWxlY3RlZCcgOiAnJykgKyAoaXNIbCAmJiAhaXNTZWwgPyAnIGhpZ2hsaWdodGVkJyA6ICcnKSArIChkaW1tZWQgPyAnIGRpbW1lZCcgOiAnJyk7CiAgICAgIGVsLnN0eWxlLmJhY2tncm91bmQgPSBpc1NlbCA/IGMubGlnaHQgOiBjLmJnOwogICAgICBlbC5zdHlsZS5ib3JkZXIgPSBpc1NlbCA/IGAzcHggc29saWQgJHtjLnRleHR9YCA6IGlzSGwgPyBgMnB4IHNvbGlkICR7Yy5ib3JkZXJ9YCA6IGAxLjVweCBzb2xpZCAke2MuYm9yZGVyfWA7CiAgICAgIGVsLnN0eWxlLmJveFNoYWRvdyA9IGlzU2VsID8gYDAgMCAxNHB4ICR7Yy5ib3JkZXJ9ODhgIDogaXNIbCA/IGAwIDAgOHB4ICR7Yy5ib3JkZXJ9NDRgIDogJ25vbmUnOwogICAgfQogIH0pOwp9CgpmdW5jdGlvbiByZW5kZXJTaWRlYmFyKCkgewogIGlmIChzZWxlY3RlZEludCkgewogICAgY29uc3QgaW50ID0gc2VsZWN0ZWRJbnQ7CiAgICBjb25zdCBmYyA9IENPTE9SUy5mbG93W2ludC50eXBlXTsKICAgIHNpZGViYXIuaW5uZXJIVE1MID0gYDxkaXYgY2xhc3M9ImRldGFpbC1wYW5lbCI+CiAgICAgIDxkaXYgY2xhc3M9ImRldGFpbC1oZWFkZXIiPgogICAgICAgIDxkaXY+CiAgICAgICAgICA8ZGl2IGNsYXNzPSJkZXRhaWwtdGl0bGUiIHN0eWxlPSJjb2xvcjojMzMzIj4ke2NvbXBvbmVudHNbaW50LmZyb21dPy5sYWJlbH0gJnJhcnI7ICR7Y29tcG9uZW50c1tpbnQudG9dPy5sYWJlbH08L2Rpdj4KICAgICAgICAgIDxkaXYgY2xhc3M9ImRldGFpbC1iYWRnZSIgc3R5bGU9ImNvbG9yOiR7ZmN9O2JhY2tncm91bmQ6JHtmY30xODtib3JkZXI6MXB4IHNvbGlkICR7ZmN9NDQiPiR7aW50LmxhYmVsfTwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICAgIDxidXR0b24gY2xhc3M9ImNsb3NlLWJ0biIgaWQ9ImNsb3NlLWRldGFpbCI+JnRpbWVzOzwvYnV0dG9uPgogICAgICA8L2Rpdj4KICAgICAgPHAgY2xhc3M9ImRldGFpbC1kZXNjIj4ke2ludC5kZXNjfTwvcD4KICAgIDwvZGl2PmA7CiAgfSBlbHNlIGlmIChzZWxlY3RlZCAmJiBjb21wb25lbnRzW3NlbGVjdGVkXSkgewogICAgY29uc3QgY29tcCA9IGNvbXBvbmVudHNbc2VsZWN0ZWRdOwogICAgY29uc3QgaXNQcm90ID0gY29tcC5pc1BpbGw7CiAgICBjb25zdCBpc0FkID0gY29tcC5pc1N0cmlwOwogICAgY29uc3QgYyA9IGlzUHJvdCA/IENPTE9SUy5wcm90b2NvbCA6IGlzQWQgPyBDT0xPUlMuYWRhcHRlciA6IChDT0xPUlNbY29tcC5sYXllcl0gfHwgQ09MT1JTLmwxKTsKICAgIGNvbnN0IGxheWVyTGFiZWwgPSBpc1Byb3QgPyAnQ29vcmRpbmF0aW9uIFByb3RvY29sJyA6IChsYXllckluZm9bY29tcC5sYXllcl0/LmxhYmVsIHx8IGNvbXAubGF5ZXIpOwogICAgY29uc3QgY29ubkNvdW50ID0gaW50ZXJhY3Rpb25zLmZpbHRlcihpID0+IGkuZnJvbSA9PT0gY29tcC5pZCB8fCBpLnRvID09PSBjb21wLmlkKS5sZW5ndGg7CiAgICBzaWRlYmFyLmlubmVySFRNTCA9IGA8ZGl2IGNsYXNzPSJkZXRhaWwtcGFuZWwiPgogICAgICA8ZGl2IGNsYXNzPSJkZXRhaWwtaGVhZGVyIj4KICAgICAgICA8ZGl2PgogICAgICAgICAgPGRpdiBjbGFzcz0iZGV0YWlsLXRpdGxlIiBzdHlsZT0iY29sb3I6JHtjLnRleHR9Ij4ke2NvbXAubGFiZWx9PC9kaXY+CiAgICAgICAgICA8ZGl2IGNsYXNzPSJkZXRhaWwtYmFkZ2UiIHN0eWxlPSJjb2xvcjoke2MudGV4dH07YmFja2dyb3VuZDoke2MubGlnaHR9Ij4ke2xheWVyTGFiZWx9PC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGJ1dHRvbiBjbGFzcz0iY2xvc2UtYnRuIiBpZD0iY2xvc2UtZGV0YWlsIj4mdGltZXM7PC9idXR0b24+CiAgICAgIDwvZGl2PgogICAgICA8cCBjbGFzcz0iZGV0YWlsLWRlc2MiPiR7Y29tcC5kZXNjfTwvcD4KICAgICAgPGRpdiBjbGFzcz0iZGV0YWlsLW1ldGEiPkNvbm5lY3RlZCBpbnRlcmFjdGlvbnM6ICR7Y29ubkNvdW50fTwvZGl2PgogICAgPC9kaXY+YDsKICB9IGVsc2UgewogICAgc2lkZWJhci5pbm5lckhUTUwgPSBgPGRpdiBjbGFzcz0icHJpbmNpcGxlcyI+CiAgICAgIDxoMz5BcmNoaXRlY3R1cmUgUHJpbmNpcGxlczwvaDM+CiAgICAgIDxkaXYgY2xhc3M9InByaW5jaXBsZSI+PHN0cm9uZz5QMTo8L3N0cm9uZz4gRGF0YSBzdGF5cyBhdCB0aGUgZWRnZXM8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0icHJpbmNpcGxlIj48c3Ryb25nPlAyOjwvc3Ryb25nPiBPbmx5IG1ldGFkYXRhIGZsb3dzIGNlbnRyYWxseTwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJwcmluY2lwbGUiPjxzdHJvbmc+UDM6PC9zdHJvbmc+IENvdW50ZXItcGFydHkgcmVwb3J0aW5nLCBub3Qgc2VsZi1yZXBvcnRpbmc8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0icHJpbmNpcGxlIj48c3Ryb25nPlA0Ojwvc3Ryb25nPiBJbnRlbGxpZ2VuY2UgbGl2ZXMgYXQgdGhlIGVkZ2U8L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0icHJpbmNpcGxlIj48c3Ryb25nPlA1Ojwvc3Ryb25nPiBDZW50cmUgb2JzZXJ2ZXMsIGRvZXMgbm90IG9yY2hlc3RyYXRlPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9InByaW5jaXBsZSI+PHN0cm9uZz5QNjo8L3N0cm9uZz4gVHJlYXRtZW50IG5ldmVyIGJsb2NrZWQgYnkgY29vcmRpbmF0aW9uPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9InByaW5jaXBsZSI+PHN0cm9uZz5QNzo8L3N0cm9uZz4gR3JhY2VmdWwgZGVncmFkYXRpb24gYnkgZGVzaWduPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9InByaW5jaXBsZSI+PHN0cm9uZz5QODo8L3N0cm9uZz4gUHJvZ3Jlc3NpdmUgZW5oYW5jZW1lbnQsIG5vdCBiaWcgYmFuZzwvZGl2PgogICAgICA8ZGl2IHN0eWxlPSJtYXJnaW4tdG9wOjEycHg7cGFkZGluZy10b3A6MTBweDtib3JkZXItdG9wOjFweCBzb2xpZCAjZWVlO2ZvbnQtc2l6ZToxMXB4O2NvbG9yOiMxNTY1QzAiPgogICAgICAgIDxzdHJvbmc+SW4gdGhpcyB2aWV3Ojwvc3Ryb25nPiBDb29yZGluYXRpb24gUHJvdG9jb2xzIGFyZSB0aGUgc3Vic3RyYXRlIOKAlCB0aGUgYmFja2dyb3VuZCBpbnRlcm9wZXJhYmlsaXR5IGVudmlyb25tZW50IHRoYXQgYWxsIG90aGVyIGxheWVycyBvcGVyYXRlIHdpdGhpbiwgcmF0aGVyIHRoYW4gYSBzZXBhcmF0ZSBwZWVyIGxheWVyLgogICAgICA8L2Rpdj4KICAgIDwvZGl2PmA7CiAgfQogIGNvbnN0IGNsb3NlQnRuID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2Nsb3NlLWRldGFpbCcpOwogIGlmIChjbG9zZUJ0bikgY2xvc2VCdG4uYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCAoKSA9PiB7IHNlbGVjdGVkID0gbnVsbDsgc2VsZWN0ZWRJbnQgPSBudWxsOyByZW5kZXIoKTsgfSk7Cn0KCmZ1bmN0aW9uIHJlbmRlckludGVyYWN0aW9ucygpIHsKICBjb25zdCBsaXN0ID0gc2VsZWN0ZWQKICAgID8gaW50ZXJhY3Rpb25zLmZpbHRlcihpID0+IGkuZnJvbSA9PT0gc2VsZWN0ZWQgfHwgaS50byA9PT0gc2VsZWN0ZWQpCiAgICA6IGludGVyYWN0aW9uczsKICBpbnRIZWFkaW5nLnRleHRDb250ZW50ID0gc2VsZWN0ZWQKICAgID8gYEludGVyYWN0aW9ucyBpbnZvbHZpbmcgJHtjb21wb25lbnRzW3NlbGVjdGVkXT8ubGFiZWx9YAogICAgOiAnSW50ZXJhY3Rpb25zIChjbGljayBhIGNvbXBvbmVudCB0byBmaWx0ZXIpJzsKICBpbnRMaXN0LmlubmVySFRNTCA9ICcnOwogIGxpc3QuZm9yRWFjaChpbnQgPT4gewogICAgY29uc3QgZmMgPSBDT0xPUlMuZmxvd1tpbnQudHlwZV07CiAgICBjb25zdCBpc0FjdGl2ZSA9IHNlbGVjdGVkSW50ID09PSBpbnQ7CiAgICBjb25zdCBidG4gPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdidXR0b24nKTsKICAgIGJ0bi5jbGFzc05hbWUgPSAnaW50LWJ0bicgKyAoaXNBY3RpdmUgPyAnIGFjdGl2ZScgOiAnJyk7CiAgICBidG4uc3R5bGUuc2V0UHJvcGVydHkoJy0taWMnLCBmYyk7CiAgICBidG4uc3R5bGUuc2V0UHJvcGVydHkoJy0taWMtYmcnLCBmYyArICcxOCcpOwogICAgYnRuLmlubmVySFRNTCA9IGA8c3BhbiBjbGFzcz0iaW50LWRvdCIgc3R5bGU9ImJhY2tncm91bmQ6JHtmY30iPjwvc3Bhbj4KICAgICAgPHNwYW4gY2xhc3M9ImZyb20iPiR7Y29tcG9uZW50c1tpbnQuZnJvbV0/LmxhYmVsfTwvc3Bhbj4KICAgICAgPHNwYW4gY2xhc3M9ImFycm93Ij4mcmFycjs8L3NwYW4+CiAgICAgIDxzcGFuIGNsYXNzPSJ0byI+JHtjb21wb25lbnRzW2ludC50b10/LmxhYmVsfTwvc3Bhbj5gOwogICAgYnRuLmFkZEV2ZW50TGlzdGVuZXIoJ2NsaWNrJywgKGUpID0+IHsKICAgICAgZS5zdG9wUHJvcGFnYXRpb24oKTsKICAgICAgc2VsZWN0ZWRJbnQgPSAoc2VsZWN0ZWRJbnQgPT09IGludCkgPyBudWxsIDogaW50OwogICAgICBzZWxlY3RlZCA9IG51bGw7CiAgICAgIHJlbmRlcigpOwogICAgfSk7CiAgICBpbnRMaXN0LmFwcGVuZENoaWxkKGJ0bik7CiAgfSk7Cn0KCmZ1bmN0aW9uIHJlbmRlcigpIHsgcmVuZGVyU1ZHKCk7IHJlbmRlckNvbXBvbmVudHMoKTsgcmVuZGVyU2lkZWJhcigpOyByZW5kZXJJbnRlcmFjdGlvbnMoKTsgfQpyZW5kZXIoKTsKPC9zY3JpcHQ+CjwvYm9keT4KPC9odG1sPgo="), c => c.charCodeAt(0))
+  );
+
+  Reveal.initialize({
+    width: 1400,
+    height: 800,
+    margin: 0.04,
+    hash: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    controls: true,
+    progress: true,
+    center: false,
+    slideNumber: 'c/t',
+  });
+
+  // Load architecture diagram when that slide becomes visible
+  Reveal.on('slidechanged', function(event) {
+    const iframe = document.getElementById('arch-iframe');
+    if (iframe && !iframe.srcdoc && event.currentSlide.querySelector('#arch-iframe')) {
+      iframe.srcdoc = ARCH_HTML;
+    }
+  });
+  // Also load on ready if already on that slide
+  Reveal.on('ready', function(event) {
+    const iframe = document.getElementById('arch-iframe');
+    if (iframe && !iframe.srcdoc) {
+      iframe.srcdoc = ARCH_HTML;
+    }
+  });
+</script>
+</body>
+</html>
