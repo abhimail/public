@@ -299,7 +299,7 @@
     <div class="title-main">Care Coordination<br>as DPI</div>
     <div class="title-sub">An open, federated DPI for health care coordination</div>
     <div class="title-meta">
-      For: Dr. Pramod Varma &nbsp;|&nbsp; April 2026 &nbsp;|&nbsp; [Your name / organisation]
+      April 2026 &nbsp;|&nbsp; Medtronic Labs
     </div>
   </div>
   <aside class="notes">
@@ -474,41 +474,7 @@
   </aside>
 </section>
 
-<!-- ==================== SLIDE 7: DPI DESIGN PHILOSOPHY ==================== -->
-<section>
-  <div class="slide-body">
-    <div class="act-tag">Act 2 · The Opportunity</div>
-    <h2>The DPI Design Philosophy</h2>
-    <p style="font-size:0.44em;color:var(--muted);margin-bottom:12px;">CCE follows the same design principles that made Aadhaar, UPI, Beckn, DEPA, and Estonia's X-Road work at population scale:</p>
-    <div class="principles-grid">
-      <div class="principle-item">
-        <div class="principle-num">①</div>
-        <div><div class="principle-name">Thin centre, thick edges</div><div class="principle-desc">The central layer coordinates — it doesn't accumulate data or make decisions. Edge systems retain full autonomy.</div></div>
-      </div>
-      <div class="principle-item">
-        <div class="principle-num">②</div>
-        <div><div class="principle-name">Open protocol specifications</div><div class="principle-desc">Anyone who speaks the protocol can participate. No vendor lock-in, no single platform dependency.</div></div>
-      </div>
-      <div class="principle-item">
-        <div class="principle-num">③</div>
-        <div><div class="principle-name">Federated trust</div><div class="principle-desc">Trust via cryptographic attestation — not by a central authority holding all information.</div></div>
-      </div>
-      <div class="principle-item">
-        <div class="principle-num">④</div>
-        <div><div class="principle-name">Data stays at the edges</div><div class="principle-desc">The centre sees only coordination metadata — never clinical records, never patient data.</div></div>
-      </div>
-      <div class="principle-item">
-        <div class="principle-num">⑤</div>
-        <div><div class="principle-name">Progressive enhancement</div><div class="principle-desc">Works at the lowest common denominator. Gets richer as participants mature — no big-bang required.</div></div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">
-    1.5 minutes. With Pramod: don't over-explain these principles — he designed most of them himself. Instead, frame it as: "We've taken the same constraints that made your DPI work and asked: what does this look like for health coordination?" The key insight is that CCE is applying a proven pattern to a new domain — not inventing new principles.
-  </aside>
-</section>
-
-<!-- ==================== SLIDE 8: STAKEHOLDERS ==================== -->
+<!-- ==================== SLIDE 7: STAKEHOLDERS ==================== -->
 <section>
   <div class="slide-body">
     <div class="act-tag">Act 2 · The Opportunity</div>
@@ -558,6 +524,40 @@
   </div>
   <aside class="notes">
     1.5 minutes. The loss-to-follow-up point under Patients is emotionally resonant — make it vivid: "Today, a patient can disappear between facilities and no one in the system knows. With CCE, that gap is structurally visible." The CHW card is new — CHWs are the last mile, and CCE gives them actionable signals rather than blanket lists. This is also the slide where you preemptively answer "what's the incentive for private hospitals" — network effects and reputation tracking within the protocol network.
+  </aside>
+</section>
+
+<!-- ==================== SLIDE 8: DPI DESIGN PHILOSOPHY ==================== -->
+<section>
+  <div class="slide-body">
+    <div class="act-tag">Act 2 · The Opportunity</div>
+    <h2>The DPI Design Philosophy</h2>
+    <p style="font-size:0.44em;color:var(--muted);margin-bottom:12px;">CCE follows the same design principles that made Aadhaar, UPI, Beckn, DEPA, and Estonia's X-Road work at population scale:</p>
+    <div class="principles-grid">
+      <div class="principle-item">
+        <div class="principle-num">①</div>
+        <div><div class="principle-name">Thin centre, thick edges</div><div class="principle-desc">The central layer coordinates — it doesn't accumulate data or make decisions. Edge systems retain full autonomy.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">②</div>
+        <div><div class="principle-name">Open protocol specifications</div><div class="principle-desc">Anyone who speaks the protocol can participate. No vendor lock-in, no single platform dependency.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">③</div>
+        <div><div class="principle-name">Federated trust</div><div class="principle-desc">Trust via cryptographic attestation — not by a central authority holding all information.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">④</div>
+        <div><div class="principle-name">Data stays at the edges</div><div class="principle-desc">The centre sees only coordination metadata — never clinical records, never patient data.</div></div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">⑤</div>
+        <div><div class="principle-name">Progressive enhancement</div><div class="principle-desc">Works at the lowest common denominator. Gets richer as participants mature — no big-bang required.</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    1.5 minutes. With Pramod: don't over-explain these principles — he designed most of them himself. Instead, frame it as: "We've taken the same constraints that made your DPI work and asked: what does this look like for health coordination?" The key insight is that CCE is applying a proven pattern to a new domain — not inventing new principles.
   </aside>
 </section>
 
@@ -774,7 +774,6 @@
   <div class="slide-body">
     <div class="act-tag">Act 5 · Open Questions</div>
     <h2>Open Questions</h2>
-    <p style="font-size:0.44em;color:var(--muted);margin-bottom:12px;font-style:italic;">These are the unresolved design decisions — this is where your expertise is most valuable:</p>
     <div class="oq-grid">
       <div class="oq-card">
         <div class="oq-topic">🏛️ Governance</div>
