@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CCM: A DPI for Care Coordination</title>
+  <title>CCE: A DPI for Care Coordination</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reset.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/league.css">
@@ -271,9 +271,9 @@
     /* ---- APPENDIX ---- */
     .appendix-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.4em; }
     .appendix-table th { background: var(--primary); color: white; padding: 8px 12px; text-align: left; font-size: 1em; }
-    .appendix-table td { padding: 8px 12px; border-bottom: 1px solid #EAF2FB; }
-    .appendix-table tr:nth-child(even) td { background: var(--light); }
-    .appendix-table code { font-family: 'Consolas', monospace; font-size: 0.95em; }
+    .appendix-table td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #E8EEF4; }
+    .appendix-table tr:nth-child(even) td { background: rgba(255,255,255,0.07); color: #E8EEF4; }
+    .appendix-table code { font-family: 'Consolas', monospace; font-size: 0.95em; color: #7FC8F8; }
 
     /* ---- SLIDE NUMBER ---- */
     .slide-num {
@@ -342,8 +342,8 @@
       <div class="stat-card">
         <div>
           <div class="stat-region">India</div>
-          <div class="stat-number">2.19%</div>
-          <div class="stat-desc">correct treatment rate for common conditions in some states; 180-day avg delay to cancer diagnosis</div>
+          <div class="stat-number">2.6%</div>
+          <div class="stat-desc">correct treatment rate for common conditions in some states (Das et al., JAMA)</div>
         </div>
         <div class="stat-src">Das et al. (JAMA); NCI India</div>
       </div>
@@ -358,8 +358,8 @@
       <div class="stat-card">
         <div>
           <div class="stat-region">United States</div>
-          <div class="stat-number">$528B</div>
-          <div class="stat-desc">wasted annually on care coordination failures</div>
+          <div class="stat-number">$27–$78B</div>
+          <div class="stat-desc">wasted annually from care coordination failures specifically; part of an estimated $760B–$935B in total US healthcare waste</div>
         </div>
         <div class="stat-src">NEJM Catalyst</div>
       </div>
@@ -367,7 +367,7 @@
     <div class="root-cause">Common root cause: the system fails not at individual points of care, but at the <em>transitions between them</em></div>
   </div>
   <aside class="notes">
-    1.5 minutes. Key message: this is a global problem, not an India-specific one. The numbers are striking because they show that the problem is quality and coordination, not just access. Pramod will appreciate the global framing — CCM is a global protocol with India as the proving ground.
+    1.5 minutes. Key message: this is a global problem, not an India-specific one. The numbers are striking because they show that the problem is quality and coordination, not just access. Pramod will appreciate the global framing — CCE is a global protocol with India as the proving ground.
   </aside>
 </section>
 
@@ -393,7 +393,7 @@
     <div style="margin-top:20px; display:flex; gap:14px; flex:1;">
       <div style="flex:1; background:white; border-radius:10px; padding:18px; border-left:4px solid #E74C3C; box-shadow:0 1px 8px rgba(0,0,0,0.05);">
         <div style="font-size:0.38em;font-weight:700;color:#C0392B;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">The core failure</div>
-        <p style="font-size:0.42em;line-height:1.6;margin:0;">No one in the system knows this patient fell through. There is no feedback loop. Providers don't know the referral failed. Health systems don't know the gap exists.</p>
+        <p style="font-size:0.42em;line-height:1.6;margin:0;">No one in the system knows this patient fell through. There is no feedback loop. Providers don't know the referral failed. Health systems don't know the gap exists. <em>Referral completion rates are estimated because they are almost never systematically measured.</em></p>
       </div>
       <div style="flex:1; background:white; border-radius:10px; padding:18px; border-left:4px solid var(--secondary); box-shadow:0 1px 8px rgba(0,0,0,0.05);">
         <div style="font-size:0.38em;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Why technology hasn't fixed this</div>
@@ -433,14 +433,14 @@
       </div>
       <div class="layer-row missing">
         <div class="layer-icon">🔗</div>
-        <div class="layer-name" style="color:var(--accent);">Coordination<br><small style="font-weight:400;">CCM — the missing layer</small></div>
+        <div class="layer-name" style="color:var(--accent);">Coordination<br><small style="font-weight:400;">CCE — the missing layer</small></div>
         <div class="layer-miss">✗</div>
         <div class="layer-note" style="color:var(--accent);font-weight:600;">Care plans, referral lifecycle tracking, loss-to-follow-up detection, population observation — <em>this doesn't exist yet</em></div>
       </div>
     </div>
   </div>
   <aside class="notes">
-    1.5 minutes. This slide is the logical proof: each DPI layer solves a real problem, but none closes the loop on whether care was actually coordinated and delivered. CCM is the missing fourth layer. Important for Pramod: ABDM, UHI, ABHA are not being replaced — CCM builds on top of them.
+    1.5 minutes. This slide is the logical proof: each DPI layer solves a real problem, but none closes the loop on whether care was actually coordinated and delivered. CCE is the missing fourth layer. Important for Pramod: ABDM, UHI, ABHA are not being replaced — CCE builds on top of them.
   </aside>
 </section>
 
@@ -449,7 +449,7 @@
   <div class="slide-body">
     <div class="act-tag">Act 2 · The Opportunity</div>
     <h2>What Is Care Coordination, Really?</h2>
-    <p style="font-size:0.46em;color:var(--muted);margin-bottom:16px;">Not a platform. Not a dashboard. A <strong>protocol</strong> that enables:</p>
+    <p style="font-size:0.46em;color:var(--muted);margin-bottom:16px;">Not a platform. Not a dashboard. A <strong>protocol-based open network</strong> that facilitates:</p>
     <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
       <div class="tractable-item">
         <div class="tractable-icon">📌</div>
@@ -470,7 +470,7 @@
     </div>
   </div>
   <aside class="notes">
-    1 minute. This is the definitional slide. The key rhetorical move: "not a platform, not a dashboard" — because Pramod will have seen too many "health platforms" that don't work. CCM is a protocol, like UPI or Beckn — infrastructure, not application.
+    1 minute. This is the definitional slide. The key rhetorical move: "not a platform, not a dashboard" — because Pramod will have seen too many "health platforms" that don't work. CCE is a protocol-based open network, like UPI or Beckn — infrastructure, not application.
   </aside>
 </section>
 
@@ -479,7 +479,7 @@
   <div class="slide-body">
     <div class="act-tag">Act 2 · The Opportunity</div>
     <h2>The DPI Design Philosophy</h2>
-    <p style="font-size:0.44em;color:var(--muted);margin-bottom:12px;">CCM follows the same design principles that made Aadhaar, UPI, Beckn, DEPA, and Estonia's X-Road work at population scale:</p>
+    <p style="font-size:0.44em;color:var(--muted);margin-bottom:12px;">CCE follows the same design principles that made Aadhaar, UPI, Beckn, DEPA, and Estonia's X-Road work at population scale:</p>
     <div class="principles-grid">
       <div class="principle-item">
         <div class="principle-num">①</div>
@@ -504,7 +504,7 @@
     </div>
   </div>
   <aside class="notes">
-    1.5 minutes. With Pramod: don't over-explain these principles — he designed most of them himself. Instead, frame it as: "We've taken the same constraints that made your DPI work and asked: what does this look like for health coordination?" The key insight is that CCM is applying a proven pattern to a new domain — not inventing new principles.
+    1.5 minutes. With Pramod: don't over-explain these principles — he designed most of them himself. Instead, frame it as: "We've taken the same constraints that made your DPI work and asked: what does this look like for health coordination?" The key insight is that CCE is applying a proven pattern to a new domain — not inventing new principles.
   </aside>
 </section>
 
@@ -517,39 +517,47 @@
       <div class="stakeholder-card accent-top">
         <div class="stakeholder-who">👤 Patients</div>
         <ul>
-          <li>Care plans that <strong>follow them</strong> across providers</li>
+          <li>Care plans that <strong>follow them</strong> across providers — not locked to any single facility</li>
           <li><strong>Loss to follow-up becomes visible:</strong> if a patient is referred and never arrives, the system knows — today, nobody knows</li>
-          <li>Continuity across public, private, and community care</li>
+          <li>Reduced financial catastrophe: 16% of Indian households face catastrophic health expenditure; 3.3% pushed into poverty. Coordination reduces redundant investigations and expensive late-stage presentations</li>
         </ul>
       </div>
       <div class="stakeholder-card">
-        <div class="stakeholder-who">🏥 Providers</div>
+        <div class="stakeholder-who">🏥 Providers &amp; Clinicians</div>
         <ul>
-          <li>Closed referral loops — know whether patients received care</li>
+          <li><strong>Closed referral loops</strong> — today, coin-flip odds of knowing whether a referral was completed (40–60% never confirmed across sub-Saharan Africa and South Asia)</li>
           <li>Decision support at the edge, not mandated from centre</li>
-          <li>Reduced redundant investigations</li>
+          <li>Reduced redundant investigations; reputation trackable through the network</li>
         </ul>
       </div>
       <div class="stakeholder-card green-top">
         <div class="stakeholder-who">🏛️ Health Authorities</div>
         <ul>
+          <li>TB cascade: 2.7M estimated cases → 1.5M notified — CCE makes the invisible gap visible</li>
+          <li>Hypertension: 34% aware → 13.7% treated → 7.8% controlled (NFHS-5). Each drop is a coordination failure CCE can surface</li>
           <li>Population dashboards <strong>without a central clinical database</strong></li>
-          <li>Coordination quality metrics: referral completion rates, care plan adherence</li>
-          <li>Policy informed by real coordination data</li>
         </ul>
       </div>
       <div class="stakeholder-card">
         <div class="stakeholder-who">🏢 Private Sector &amp; Payers</div>
         <ul>
-          <li>Network effects: referrals flow to protocol-compliant providers</li>
-          <li>Interop without platform dependence</li>
+          <li>Network effects: referrals flow to protocol-compliant providers — reputation is trackable within the network</li>
+          <li>Interop without platform dependence or vendor lock-in</li>
           <li>Coordination data for care continuity, not just episodic claims</li>
+        </ul>
+      </div>
+      <div class="stakeholder-card" style="grid-column: 1 / -1; border-top-color: #27AE60;">
+        <div class="stakeholder-who" style="color:#1E8449;">🤝 Community Health Workers (CHWs)</div>
+        <ul>
+          <li><strong>Incentives unlock only when tasks are completed</strong> — today, tasks don't complete because CHWs have no way to know who is overdue</li>
+          <li>Loss-to-follow-up alerts enable <em>focused mobilisation</em>: CHWs spend time on patients at risk of dropping out, not on blanket coverage across their entire catchment</li>
+          <li>The critical bridge between facility care and community — CCE makes their coordination role structurally legible</li>
         </ul>
       </div>
     </div>
   </div>
   <aside class="notes">
-    1.5 minutes. The loss-to-follow-up point under Patients is emotionally resonant — make it vivid: "Today, a patient can disappear between facilities and no one in the system knows. With CCM, that gap is structurally visible." This is also the slide where you preemptively answer "what's the incentive for private hospitals" — network effects and interop without platform lock-in.
+    1.5 minutes. The loss-to-follow-up point under Patients is emotionally resonant — make it vivid: "Today, a patient can disappear between facilities and no one in the system knows. With CCE, that gap is structurally visible." The CHW card is new — CHWs are the last mile, and CCE gives them actionable signals rather than blanket lists. This is also the slide where you preemptively answer "what's the incentive for private hospitals" — network effects and reputation tracking within the protocol network.
   </aside>
 </section>
 
@@ -615,7 +623,7 @@
     <iframe id="arch-iframe" style="flex:1;min-height:0;"></iframe>
   </div>
   <aside class="notes">
-    2 minutes. Walk through the layers top-to-bottom: Edge Systems (where care happens — existing systems, CCM doesn't replace them) → Edge Adapter (thin gateway, SDK or service, 4 modules) → Coordination Protocols as the substrate connecting everything → CCM: Observation & Policy (metadata only, population dashboards) → Governance (protocol steward, neutral). Key: "The blue background is the protocol substrate — it's not a peer layer, it's the environment that connects the other layers." Let Pramod click around if he wants. The interactive diagram was built for exactly this kind of deep-dive conversation.
+    2 minutes. Walk through the layers top-to-bottom: Edge Systems (where care happens — existing systems, CCE doesn't replace them) → Edge Adapter (thin gateway, SDK or service, 4 modules) → Coordination Protocols as the substrate connecting everything → CCE: Observation, Intelligence & Policy (metadata only, population dashboards, coordination-layer alerts) → Governance (protocol steward, neutral). Key: "The blue background is the protocol substrate — it's not a peer layer, it's the environment that connects the other layers." Let Pramod click around if he wants. The interactive diagram was built for exactly this kind of deep-dive conversation.
   </aside>
 </section>
 
@@ -637,8 +645,8 @@
         <div class="mechanism-key">The absence of a deviation signal is itself proof that coordination is working.</div>
       </div>
       <div class="mechanism-panel panel-b">
-        <div class="mechanism-tag">Observation Stream</div>
-        <div class="mechanism-title">2. Policy-Based Event Reporting</div>
+        <div class="mechanism-tag">Observation, Intelligence &amp; Policy</div>
+        <div class="mechanism-title">2. Policy-Based Event Reporting &amp; Coordination Alerts</div>
         <ul>
           <li>Edge adapter consults a <strong>reporting policy</strong> (pushed from governance) determining what metadata flows centrally</li>
           <li>A <strong>spectrum</strong>, not binary:<br>
@@ -647,6 +655,7 @@
             <em>→ Full instrumentation</em> for pilot sites
           </li>
           <li>Low-maturity regions start at aggregate end; progress as capacity grows</li>
+          <li><strong>Generates coordination-layer alerts back to the edge</strong> — unacknowledged referral flags, SLA breach notifications, follow-up due signals — without touching clinical decisions</li>
         </ul>
         <div class="mechanism-key">The centre never sees clinical content — only event types, provider IDs, timestamps, hashed plan references.</div>
       </div>
@@ -661,7 +670,7 @@
 <section>
   <div class="slide-body">
     <div class="act-tag">Act 4 · Architecture</div>
-    <h2>CCM Protocol Design: Verbs &amp; Nouns</h2>
+    <h2>CCE Protocol Design: Verbs &amp; Nouns</h2>
     <div class="protocol-cols">
       <div class="protocol-col">
         <div class="protocol-col-title">Coordination Verbs &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.85em;">(generalised — applicable beyond health)</span></div>
@@ -683,7 +692,7 @@
         <div class="protocol-item"><span class="protocol-noun">CareCoordinationEvent</span><div class="protocol-def">Observation signal; constrained FHIR profile, clinical content stripped</div></div>
       </div>
       <div class="uhi-note">
-        <strong>Relationship to UHI / Beckn:</strong> CCM leverages UHI (built on Beckn) as the <strong>discovery and appointment layer</strong> — finding providers, booking referral slots, confirming availability. CCM adds what UHI doesn't cover: <strong>longitudinal coordination</strong> — care plan sync, counter-party attestation, deviation reporting, policy-governed observation. <em>UHI handles "find and book"; CCM handles "coordinate, attest, and observe over time."</em> They are complementary layers.
+        <strong>Relationship to UHI / Beckn:</strong> CCE leverages UHI (built on Beckn) as the <strong>discovery and appointment layer</strong> — finding providers, booking referral slots, confirming availability. CCE adds what UHI doesn't cover: <strong>longitudinal coordination</strong> — care plan sync, counter-party attestation, deviation reporting, policy-governed observation. <em>UHI handles "find and book"; CCE handles "coordinate, attest, and observe over time."</em> They are complementary layers.
       </div>
       <div class="payload-box">
         {verb: "transition", noun: {type: "CareTransition", source: "facility-A", target: "facility-B",<br>
@@ -693,7 +702,7 @@
     </div>
   </div>
   <aside class="notes">
-    1.5 minutes. The key insight to surface for Pramod: verbs are generalised (like HTTP GET/POST/PUT) — the same grammar could serve coordination in other domains. Nouns are health-specific — FHIR structures underneath. This is proper protocol design: domain-neutral grammar, domain-specific resources. The UHI note is important: don't frame CCM as replacing or competing with Beckn/UHI — they're complementary layers. Pramod built Beckn; he'll appreciate CCM building on top of it rather than around it. See Appendix A for the full generalised protocol model.
+    1.5 minutes. The key insight to surface for Pramod: verbs are generalised (like HTTP GET/POST/PUT) — the same grammar could serve coordination in other domains. Nouns are health-specific — FHIR structures underneath. This is proper protocol design: domain-neutral grammar, domain-specific resources. The UHI note is important: don't frame CCE as replacing or competing with Beckn/UHI — they're complementary layers. Pramod built Beckn; he'll appreciate CCE building on top of it rather than around it. See Appendix A for the full generalised protocol model.
   </aside>
 </section>
 
@@ -719,11 +728,15 @@
         <div class="foundation-label">🏗️ Protocol-First Precedent</div>
         <div class="foundation-text">India has shown that specifying the protocol first — letting implementations emerge — scales better than building a central platform. Same approach here.</div>
       </div>
+      <div class="foundation-item" style="border-left-color:var(--accent);">
+        <div class="foundation-label" style="color:var(--accent);">🌍 Demand Already Exists</div>
+        <div class="foundation-text"><strong>Rwanda and Kenya have agreed to implement CCE</strong> — the coordination gap is felt globally, not just in India. The problem is ready to be solved.</div>
+      </div>
       <div class="foundation-cta">The coordination layer is the logical next step.</div>
     </div>
   </div>
   <aside class="notes">
-    1 minute. Quick slide — these are enabling conditions, not the core argument. Key: don't overclaim ABDM readiness. Pramod knows the real state. Frame India as a proving ground that's further along than most countries, not as a solved problem. The DPI pattern proven point is the strongest — he's seen it work across domains.
+    1 minute. Quick slide — these are enabling conditions, not the core argument. Key: don't overclaim ABDM readiness. Pramod knows the real state. Frame India as a proving ground that's further along than most countries, not as a solved problem. The DPI pattern proven point is the strongest — he's seen it work across domains. The Rwanda/Kenya point shows this isn't a hypothesis — the coordination gap is globally felt and there are already takers.
   </aside>
 </section>
 
@@ -773,7 +786,7 @@
       <div class="oq-card" style="border-top-color:var(--accent);">
         <div class="oq-topic">🔐 Trust &amp; Consent</div>
         <ul>
-          <li>How does CCM's coordination consent relate to ABDM's HIE-CM consent framework? New artefact or extension?</li>
+          <li>How does CCE's coordination consent relate to ABDM's HIE-CM consent framework? New artefact or extension?</li>
           <li>Minimum trust requirement for a facility to join — self-attestation, certification, or peer vouching?</li>
         </ul>
       </div>
@@ -814,7 +827,7 @@
       </div>
       <div class="ask-item">
         <div class="ask-num">3</div>
-        <div><div class="ask-title">Strategic guidance</div><div class="ask-desc">How should CCM position within the global health DPI landscape? Relationship to WHO, NHA, existing DPI stewards?</div></div>
+        <div><div class="ask-title">Strategic guidance</div><div class="ask-desc">How should CCE position within the global health DPI landscape? Relationship to WHO, NHA, existing DPI stewards?</div></div>
       </div>
       <div class="ask-item">
         <div class="ask-num">4</div>
@@ -838,7 +851,7 @@
         <div class="phase-title">Protocol Specification</div>
         <div class="phase-timing">Months 1–3</div>
         <ul>
-          <li>Formalise CCM protocol spec — verbs, nouns, event schemas, attestation format</li>
+          <li>Formalise CCE protocol spec — verbs, nouns, event schemas, attestation format</li>
           <li>Publish as open specification</li>
           <li>Architecture review with DPI experts <em>(this conversation is step one)</em></li>
         </ul>
@@ -849,8 +862,8 @@
         <div class="phase-timing" style="background:#FEF6EC;color:#935116;">Months 3–9</div>
         <ul>
           <li>Open-source reference Edge Adapter</li>
-          <li>Deploy in one geography: ~5 PHCs + 1 district hospital</li>
-          <li>Scope: referral lifecycle + deviation reporting only</li>
+          <li>Deploy with <strong>Rwanda and Kenya</strong> — confirmed Phase 1 implementation partners</li>
+          <li>Scope: referral lifecycle + deviation reporting only (~5 PHCs + 1 district hospital per site)</li>
           <li>Measure: referral completion rates, loss-to-follow-up reduction</li>
         </ul>
       </div>
@@ -877,7 +890,7 @@
     </div>
   </div>
   <aside class="notes">
-    1 minute. This turns the conversation from "interesting idea" to "concrete plan." Phase 0 starts immediately — and this meeting is literally step one of Phase 0. The pilot scope in Phase 1 is deliberately small: prove the protocol works before scaling.
+    1 minute. This turns the conversation from "interesting idea" to "concrete plan." Phase 0 starts immediately — and this meeting is literally step one of Phase 0. Rwanda and Kenya are already committed to Phase 1 — this isn't a plan in search of a pilot, it's a plan with confirmed implementers.
   </aside>
 </section>
 
@@ -920,11 +933,11 @@
     </table>
     <div style="margin-top:14px;background:var(--light);border-radius:8px;padding:14px 16px;font-size:0.38em;line-height:1.6;">
       <strong>Why this matters:</strong> The protocol core (verbs + generic nouns + trust model + reporting policy mechanism) is reusable. The same grammar could serve coordination in education (student transitions), social services (case handoffs), or supply chain (logistics handoffs). Health is the first domain binding — not a near-term commitment, but a deliberate architectural affordance.<br><br>
-      <strong>Analogues:</strong> HTTP verbs are domain-neutral, REST resources are domain-specific. Beckn's coordination grammar is domain-neutral, catalogue schema is vertical-specific. CCM follows the same pattern.
+      <strong>Analogues:</strong> HTTP verbs are domain-neutral, REST resources are domain-specific. Beckn's coordination grammar is domain-neutral, catalogue schema is vertical-specific. CCE follows the same pattern.
     </div>
   </div>
   <aside class="notes">
-    Backup slide — only show if Pramod asks about extensibility or the "why not just use Beckn" question comes up. The table makes the binding model concrete. The key message: we've designed CCM so the coordination core is reusable — health is the first and immediate focus, but the protocol isn't health-specific at its core.
+    Backup slide — only show if Pramod asks about extensibility or the "why not just use Beckn" question comes up. The table makes the binding model concrete. The key message: we've designed CCE so the coordination core is reusable — health is the first and immediate focus, but the protocol isn't health-specific at its core.
   </aside>
 </section>
 
