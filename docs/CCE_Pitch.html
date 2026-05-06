@@ -313,15 +313,15 @@
     <div class="act-tag">The Core Idea</div>
     <h2>The Missing Layer</h2>
     <div class="thesis-quote">
-      Health systems everywhere have built digital layers for <strong>identity</strong>, <strong>records</strong>, and <strong>discovery</strong>. The missing layer is <strong>coordination</strong> — ensuring the right care reaches the right patient at the right time, across providers and institutions.
+      Health systems everywhere have built digital layers for <strong>addressing / identity</strong>, <strong>records</strong>, and <strong>discovery</strong>. The missing layer is <strong>coordination</strong> — ensuring the right care reaches the right patient at the right time, across providers and institutions.
     </div>
     <div style="margin-top: 20px; font-size: 0.46em; color: var(--muted); line-height: 1.6;">
-      India has ABHA (identity), ABDM (records), UHI (discovery).<br>
+      India has ABHA (addressing / identity), ABDM (records), UHI (discovery).<br>
       Every health system is missing the same fourth layer.
     </div>
   </div>
   <aside class="notes">
-    30 seconds. This slide sets the entire frame. The argument is: DPI for health has been built in layers — identity, records, discovery. Each is necessary but not sufficient. Coordination is the fourth and final layer. Everything else in the presentation supports this.
+    30 seconds. This slide sets the entire frame. The argument is: DPI for health has been built in layers — addressing / identity, records, discovery. Each is necessary but not sufficient. Coordination is the fourth and final layer. Everything else in the presentation supports this.
   </aside>
 </section>
 
@@ -411,13 +411,13 @@
   <div class="slide-body">
     <div class="act-tag">Act 1 · The Problem</div>
     <h2>Why Existing Digital Health Layers Don't Solve This</h2>
-    <p style="font-size:0.46em;color:var(--muted);margin-bottom:8px;font-style:italic;">"We have the pipes — but no traffic rules"</p>
+    <p style="font-size:0.46em;color:var(--muted);margin-bottom:8px;font-style:italic;">"We have the roads — but no traffic rules"</p>
     <div class="layers-grid">
       <div class="layer-row">
         <div class="layer-icon">🪪</div>
-        <div class="layer-name">Health Identity<br><small style="color:var(--muted);font-weight:400;">ABHA / Aadhaar / national IDs</small></div>
+        <div class="layer-name">Health Addressing<br><small style="color:var(--muted);font-weight:400;">ABHA / Aadhaar / national IDs</small></div>
         <div class="layer-check">✓</div>
-        <div class="layer-note">Knowing <em>who</em> the patient is doesn't ensure they get followed up</div>
+        <div class="layer-note">Knowing <em>where to reach</em> a patient enables routing — but not whether care was coordinated or followed up</div>
       </div>
       <div class="layer-row">
         <div class="layer-icon">📋</div>
@@ -484,40 +484,48 @@
         <div class="stakeholder-who">👤 Patients</div>
         <ul>
           <li>Care plans that <strong>follow them</strong> across providers — not locked to any single facility</li>
-          <li><strong>No more silent disappearances</strong> — if a referral isn't completed, a CHW receives an alert and follows up. The system actively catches you, rather than passively losing you</li>
-          <li>Reduced financial catastrophe: 16% of Indian households face catastrophic health expenditure; 3.3% pushed into poverty. Coordination reduces redundant investigations and expensive late-stage presentations</li>
+          <li><strong>No more silent disappearances</strong> — if a referral isn't completed, an FLW receives an alert and follows up. The system actively catches you, rather than passively losing you</li>
+          <li>The receiving provider already knows you're expected and why — you don't arrive as an unknown patient starting from scratch</li>
+        </ul>
+      </div>
+      <div class="stakeholder-card" style="border-top-color:#27AE60;">
+        <div class="stakeholder-who" style="color:#1E8449;">🤝 Frontline Workers (FLWs / CHWs)</div>
+        <ul>
+          <li><strong>Incentives unlock only when tasks are completed</strong> — today tasks don't complete because FLWs have no way to know who is overdue</li>
+          <li>Loss-to-follow-up alerts enable <em>focused mobilisation</em> — time spent on patients at risk, not blanket coverage across the entire catchment</li>
+          <li><strong>Coordination work becomes a formal record</strong> — just as UPI made invisible small traders creditworthy, CCE makes the FLW's contribution visible, measurable, and creditable. <em>(e.g. India's ASHAs)</em></li>
         </ul>
       </div>
       <div class="stakeholder-card">
-        <div class="stakeholder-who">🏥 Providers &amp; Clinicians</div>
+        <div class="stakeholder-who">🏥 Public Providers <small style="font-weight:400;font-size:0.85em;color:var(--muted);">(PHCs, CHCs, district hospitals)</small></div>
         <ul>
-          <li><strong>Closed referral loops</strong> — today, coin-flip odds of knowing whether a referral was completed (40–60% never confirmed across sub-Saharan Africa and South Asia)</li>
-          <li>Decision support at the edge, not mandated from centre</li>
-          <li>Reduced redundant investigations; reputation trackable through the network</li>
+          <li>Better planning and operational efficiency — structured, signed referrals mean you know who is coming and why; no surprise walk-ins with no context</li>
+          <li><strong>Closed referral loops</strong> — know whether patients you referred actually received care; programme targets become measurable</li>
+          <li>Every coordination step is documented — referrals, attestations, deviations — creating a shared record that builds system trust</li>
+        </ul>
+      </div>
+      <div class="stakeholder-card" style="border-top-color:var(--accent);">
+        <div class="stakeholder-who">🏢 Private Providers <small style="font-weight:400;font-size:0.85em;color:var(--muted);">(hospitals, specialist centres)</small></div>
+        <ul>
+          <li>Referral flow follows protocol-compliant providers — <strong>reputation within the network becomes visible</strong> and drives inbound referrals</li>
+          <li>Interop without platform dependence — connect once to the protocol, reach the entire referral network; no lock-in to a single government platform</li>
+          <li>Structured referral handling — no chasing informal referrals; every incoming referral is a signed, documented coordination event</li>
+        </ul>
+      </div>
+      <div class="stakeholder-card" style="border-top-color:var(--secondary);">
+        <div class="stakeholder-who">🏦 Payers <small style="font-weight:400;font-size:0.85em;color:var(--muted);">(Schemes &amp; Insurers)</small></div>
+        <ul>
+          <li>Reduced redundant investigations — direct cost saving when coordination prevents repeated workups</li>
+          <li>Fewer catastrophic presentations — the patient followed up doesn't arrive in crisis; earlier-stage treatment is dramatically cheaper</li>
+          <li>Coordination data for care continuity, not just episodic claims — foundation for value-based care arrangements</li>
         </ul>
       </div>
       <div class="stakeholder-card green-top">
-        <div class="stakeholder-who">🏛️ Health Authorities</div>
+        <div class="stakeholder-who" style="color:var(--green);">🏛️ Health Authorities</div>
         <ul>
-          <li>TB cascade: 2.7M estimated cases → 1.5M notified — CCE makes the invisible gap visible</li>
-          <li>Hypertension: 34% aware → 13.7% treated → 7.8% controlled (NFHS-5). Each drop is a coordination failure CCE can surface</li>
-          <li>Population dashboards <strong>without a central clinical database</strong></li>
-        </ul>
-      </div>
-      <div class="stakeholder-card">
-        <div class="stakeholder-who">🏢 Private Sector &amp; Payers</div>
-        <ul>
-          <li>Network effects: referrals flow to protocol-compliant providers — reputation is trackable within the network</li>
-          <li>Interop without platform dependence or vendor lock-in</li>
-          <li>Coordination data for care continuity, not just episodic claims</li>
-        </ul>
-      </div>
-      <div class="stakeholder-card" style="grid-column: 1 / -1; border-top-color: #27AE60;">
-        <div class="stakeholder-who" style="color:#1E8449;">🤝 Frontline Workers (FLWs / CHWs)</div>
-        <ul>
-          <li><strong>Incentives unlock only when tasks are completed</strong> — today, tasks don't complete because FLWs have no way to know who is overdue</li>
-          <li>Loss-to-follow-up alerts enable <em>focused mobilisation</em>: FLWs spend time on patients at risk of dropping out, not on blanket coverage across their entire catchment</li>
-          <li><strong>Coordination work becomes a formal record</strong> — just as UPI created a transaction history that made previously invisible small traders creditworthy, CCE creates a coordination record from the FLW's existing work. Her contribution to the care system becomes visible, measurable, and creditable for the first time. <em>(e.g. India's ASHAs)</em></li>
+          <li>TB cascade: 2.7M estimated cases → 1.5M notified — CCE makes the invisible gap <strong>visible and locatable</strong></li>
+          <li>Hypertension: 34% aware → 13.7% treated → 7.8% controlled — see exactly <strong>where the cascade breaks</strong> and intervene there, not at the end</li>
+          <li>Population dashboards <strong>without a central clinical database</strong> — intelligence from coordination metadata, not from centralising records</li>
         </ul>
       </div>
     </div>
@@ -565,7 +573,7 @@
 <section>
   <div class="slide-body">
     <div class="act-tag">Act 3 · Design Principles</div>
-    <h2>Eight Design Principles</h2>
+    <h2>Nine Design Principles</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex:1;margin-top:8px;">
       <div>
         <h3 style="color:var(--secondary);font-size:0.42em;border-bottom:2px solid var(--light);padding-bottom:6px;margin-bottom:10px;">🔒 Data Sovereignty</h3>
@@ -577,9 +585,13 @@
           <div style="font-size:0.75em;color:var(--accent);font-weight:800;">2</div>
           <div><div class="principle-name">Metadata-only central visibility</div><div class="principle-desc">Only events, timestamps, provider IDs — and even this is policy-governed</div></div>
         </div>
-        <div class="principle-item">
+        <div class="principle-item" style="margin-bottom:8px;">
           <div style="font-size:0.75em;color:var(--accent);font-weight:800;">3</div>
           <div><div class="principle-name">Counter-party deviation reporting</div><div class="principle-desc">Both sides attest independently; only discrepancies escalate</div></div>
+        </div>
+        <div class="principle-item">
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">5</div>
+          <div><div class="principle-name">Coordinate by address, not identity</div><div class="principle-desc">Protocol routes via pseudonymous tokens — full identity disclosure is a clinical decision at the edge, not a protocol requirement. Anonymous care is structurally possible.</div></div>
         </div>
       </div>
       <div>
@@ -589,7 +601,7 @@
           <div><div class="principle-name">Treatment never blocked</div><div class="principle-desc">If the coordination layer is down, care continues; events sync later</div></div>
         </div>
         <div class="principle-item" style="margin-bottom:8px;">
-          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">5</div>
+          <div style="font-size:0.75em;color:var(--accent);font-weight:800;">9</div>
           <div><div class="principle-name">Graceful degradation</div><div class="principle-desc">Works on SMS where there's no broadband; rich client where there is</div></div>
         </div>
         <div class="principle-item">
@@ -611,7 +623,7 @@
     </div>
   </div>
   <aside class="notes">
-    2 minutes. Present these as design constraints, not feature list. Key framing for Pramod: "These are the same constraints that made UPI and Aadhaar work — applied to the health coordination domain. Principle 3 (counter-party deviation reporting) is the novel one — it's how you get a trust mesh without a central authority." Principle 4 is important for low-resource settings: clinical care is never gated on the coordination layer being up.
+    2 minutes. Present these as design constraints, not feature list. Key framing for Pramod: "These are the same constraints that made UPI and Aadhaar work — applied to the health coordination domain. Principle 3 (counter-party deviation reporting) and Principle 4 (coordinate by address, not identity) are the novel ones — privacy-by-design baked into the protocol, not bolted on. Principle 5 is important for low-resource settings: clinical care is never gated on the coordination layer being up."
   </aside>
 </section>
 
