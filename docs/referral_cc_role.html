@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referral Two-Transaction Model — Care Coordinator Role</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f9fafb; padding: 24px; }
+  h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  .container { max-width: 960px; margin: 0 auto; background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  h3 { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #6b7280; margin-bottom: 16px; }
+  .selector-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .mode-btn {
+    padding: 7px 16px; border: 1.5px solid #d1d5db; border-radius: 20px;
+    font-size: 12px; font-weight: 500; cursor: pointer; background: white; color: #374151;
+    transition: all 0.15s;
+  }
+  .mode-btn:hover { border-color: #6366f1; color: #6366f1; }
+  .mode-btn.active { background: #6366f1; border-color: #6366f1; color: white; font-weight: 600; }
+  .description {
+    font-size: 12px; color: #374151; background: #f3f4f6; border-left: 3px solid #6366f1;
+    padding: 8px 12px; border-radius: 0 6px 6px 0; margin-bottom: 16px; line-height: 1.6;
+  }
+  .change-note { font-size: 11px; color: #6b7280; font-style: italic; margin-top: 4px; }
+  svg { display: block; width: 100%; overflow: visible; }
+  .legend { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #6b7280; }
+  .legend-line { width: 28px; height: 2px; }
+  .legend-line.solid { background: #1e40af; }
+  .legend-line.dashed { background: repeating-linear-gradient(to right, #6b7280 0, #6b7280 4px, transparent 4px, transparent 8px); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2 class="sr-only">Interactive diagram: two-transaction health referral model showing how the Care Coordinator role shifts between different network participants.</h2>
+  <h3>Two-Transaction Referral Model — Care Coordinator Role</h3>
+  <p class="subtitle">Select who assumes the Care Coordinator role to see how the diagram changes.</p>
+
+  <p class="selector-label">Who assumes the Care Coordinator role?</p>
+  <div class="btn-group">
+    <button class="mode-btn active" data-mode="dedicated">Dedicated CC Service</button>
+    <button class="mode-btn" data-mode="chw">Community Health Worker</button>
+    <button class="mode-btn" data-mode="patient">Patient / Caregiver Platform</button>
+    <button class="mode-btn" data-mode="clinic">Clinic Desk</button>
+  </div>
+
+  <div class="description" id="desc-text"></div>
+  <svg id="diagram"></svg>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-line solid"></div> Beckn protocol call</div>
+    <div class="legend-item"><div class="legend-line dashed"></div> Response / consent signal</div>
+  </div>
+</div>
+
+<script>
+const MODES = {
+  dedicated: {
+    description: "A separate care coordination organisation or platform accepts the T1 contract and manages T2. This is the base model — CC is a distinct network participant with its own lifeline.",
+    changeNote: null,
+    participants: [
+      { id:'R',   label:'Referrer',       sub:'T1 Seeker NP',                    fill:'#2563eb' },
+      { id:'Pt',  label:'Patient',        sub:'',                                fill:'#6b7280' },
+      { id:'CHW', label:'CHW',            sub:'Observer',                        fill:'#6b7280' },
+      { id:'CC',  label:'Care Coord.',    sub:'T1 Provider NP → T2 Seeker NP',   fill:'#7c3aed' },
+      { id:'P',   label:'Provider',       sub:'T2 Provider NP',                  fill:'#059669' },
+    ],
+    messages: [
+      { from:'R',   to:'CC',  label:'discover / select / init',        style:'solid',  sec:'T1' },
+      { from:'Pt',  to:'R',   label:'consent signal',                  style:'dashed', sec:'T1' },
+      { from:'CHW', to:'R',   label:'consent mediation evidence',      style:'dashed', sec:'T1' },
+      { from:'R',   to:'CC',  label:'confirm (consent-backed)',         style:'solid',  sec:'T1' },
+      { from:'CC',  to:'R',   label:'on_confirm → Referral ID issued', style:'dashed', sec:'T1' },
+      { from:'CC',  to:'P',   label:'discover / select',               style:'solid',  sec:'T2' },
+      { from:'P',   to:'CC',  label:'on_select → slot / terms',        style:'dashed', sec:'T2' },
+      { from:'CC',  to:'P',   label:'init / confirm [Referral ID]',    style:'solid',  sec:'T2' },
+      { from:'P',   to:'CC',  label:'on_confirm → booked',             style:'dashed', sec:'T2' },
+      { from:'P',   to:'CC',  label:'T2 lifecycle events',             style:'dashed', sec:'STATE' },
+      { from:'CC',  to:'R',   label:'T1 update',                       style:'dashed', sec:'STATE' },
+      { from:'CC',  to:'CHW', label:'T1 fan-out (observer)',           style:'dashed', sec:'STATE' },
+      { from:'R',   to:'CC',  label:'status (T1) — pull backstop',     style:'solid',  sec:'STATE' },
+      { from:'CC',  to:'P',   label:'status (T2) — cascaded',          style:'solid',  sec:'STATE' },
+      { from:'P',   to:'CC',  label:'on_status (T2)',                  style:'dashed', sec:'STATE' },
+      { from:'CC',  to:'R',   label:'on_status (T1) — derived',        style:'dashed', sec:'STATE' },
+    ]
+  },
+  chw: {
+    description: "The Community Health Worker absorbs the CC role. The CHW transitions from passive observer to active coordinator. T1 is now between Referrer and CHW+CC; T2 runs from CHW+CC to Provider.",
+    changeNote: "CC column removed · CHW column becomes CHW + CC · Consent mediation arrow changes direction",
+    participants: [
+      { id:'R',  label:'Referrer',   sub:'T1 Seeker NP',                   fill:'#2563eb' },
+      { id:'Pt', label:'Patient',    sub:'',                               fill:'#6b7280' },
+      { id:'CC', label:'CHW + CC',  sub:'T1 Provider NP → T2 Seeker NP',  fill:'#d97706' },
+      { id:'P',  label:'Provider',  sub:'T2 Provider NP',                 fill:'#059669' },
+    ],
+    messages: [
+      { from:'R',  to:'CC', label:'discover / select / init',        style:'solid',  sec:'T1' },
+      { from:'Pt', to:'CC', label:'consent (CHW facilitates)',        style:'dashed', sec:'T1' },
+      { from:'R',  to:'CC', label:'confirm (consent-backed)',         style:'solid',  sec:'T1' },
+      { from:'CC', to:'R',  label:'on_confirm → Referral ID issued', style:'dashed', sec:'T1' },
+      { from:'CC', to:'P',  label:'discover / select',               style:'solid',  sec:'T2' },
+      { from:'P',  to:'CC', label:'on_select → slot / terms',        style:'dashed', sec:'T2' },
+      { from:'CC', to:'P',  label:'init / confirm [Referral ID]',    style:'solid',  sec:'T2' },
+      { from:'P',  to:'CC', label:'on_confirm → booked',             style:'dashed', sec:'T2' },
+      { from:'P',  to:'CC', label:'T2 lifecycle events',             style:'dashed', sec:'STATE' },
+      { from:'CC', to:'R',  label:'T1 update',                       style:'dashed', sec:'STATE' },
+      { from:'CC', to:'Pt', label:'patient notification (community channel)', style:'dashed', sec:'STATE' },
+      { from:'R',  to:'CC', label:'status (T1) — pull backstop',     style:'solid',  sec:'STATE' },
+      { from:'CC', to:'P',  label:'status (T2) — cascaded',          style:'solid',  sec:'STATE' },
+      { from:'P',  to:'CC', label:'on_status (T2)',                  style:'dashed', sec:'STATE' },
+      { from:'CC', to:'R',  label:'on_status (T1) — derived',        style:'dashed', sec:'STATE' },
+    ]
+  },
+  patient: {
+    description: "The patient's own platform assumes the CC role. Self-directed referral: Patient+CC receives T1 from the Referrer and independently manages T2. CHW remains an optional observer on the T1 roster.",
+    changeNote: "CC column removed · Patient column becomes Patient + CC · Consent arrows removed (patient self-consents)",
+    participants: [
+      { id:'R',   label:'Referrer',      sub:'T1 Seeker NP',                   fill:'#2563eb' },
+      { id:'CC',  label:'Patient + CC',  sub:'T1 Provider NP → T2 Seeker NP',  fill:'#db2777' },
+      { id:'CHW', label:'CHW',           sub:'Observer (optional)',             fill:'#6b7280' },
+      { id:'P',   label:'Provider',      sub:'T2 Provider NP',                 fill:'#059669' },
+    ],
+    messages: [
+      { from:'R',   to:'CC',  label:'discover / select / init',        style:'solid',  sec:'T1' },
+      { from:'R',   to:'CC',  label:'confirm (patient self-consents)',  style:'solid',  sec:'T1' },
+      { from:'CC',  to:'R',   label:'on_confirm → Referral ID issued', style:'dashed', sec:'T1' },
+      { from:'CC',  to:'P',   label:'discover / select',               style:'solid',  sec:'T2' },
+      { from:'P',   to:'CC',  label:'on_select → slot / terms',        style:'dashed', sec:'T2' },
+      { from:'CC',  to:'P',   label:'init / confirm [Referral ID]',    style:'solid',  sec:'T2' },
+      { from:'P',   to:'CC',  label:'on_confirm → booked',             style:'dashed', sec:'T2' },
+      { from:'P',   to:'CC',  label:'T2 lifecycle events',             style:'dashed', sec:'STATE' },
+      { from:'CC',  to:'R',   label:'T1 update',                       style:'dashed', sec:'STATE' },
+      { from:'CC',  to:'CHW', label:'T1 fan-out (if CHW registered)',  style:'dashed', sec:'STATE' },
+      { from:'R',   to:'CC',  label:'status (T1) — pull backstop',     style:'solid',  sec:'STATE' },
+      { from:'CC',  to:'P',   label:'status (T2) — cascaded',          style:'solid',  sec:'STATE' },
+      { from:'P',   to:'CC',  label:'on_status (T2)',                  style:'dashed', sec:'STATE' },
+      { from:'CC',  to:'R',   label:'on_status (T1) — derived',        style:'dashed', sec:'STATE' },
+    ]
+  },
+  clinic: {
+    description: "The referring institution's own coordination desk assumes the CC role. T1 becomes an internal commitment within the same organisation — only T2 is a cross-party Beckn transaction.",
+    changeNote: "CC column removed · Referrer column becomes Referrer + Clinic CC · T1 shown as internal commitment · T2 goes directly to Provider",
+    participants: [
+      { id:'R',   label:'Referrer + CC', sub:'internal coordination',  fill:'#1d4ed8' },
+      { id:'Pt',  label:'Patient',       sub:'',                       fill:'#6b7280' },
+      { id:'CHW', label:'CHW',           sub:'Observer (optional)',     fill:'#6b7280' },
+      { id:'P',   label:'Provider',      sub:'T2 Provider NP',         fill:'#059669' },
+    ],
+    messages: [
+      { from:'R',  to:'R',   label:'T1: internal coordination commitment', style:'self',   sec:'T1' },
+      { from:'R',  to:'Pt',  label:'consent obtained',                     style:'dashed', sec:'T1' },
+      { from:'R',  to:'P',   label:'discover / select',                    style:'solid',  sec:'T2' },
+      { from:'P',  to:'R',   label:'on_select → slot / terms',             style:'dashed', sec:'T2' },
+      { from:'R',  to:'P',   label:'init / confirm [Referral ID]',         style:'solid',  sec:'T2' },
+      { from:'P',  to:'R',   label:'on_confirm → booked',                  style:'dashed', sec:'T2' },
+      { from:'P',  to:'R',   label:'T2 lifecycle events',                  style:'dashed', sec:'STATE' },
+      { from:'R',  to:'Pt',  label:'patient notification',                 style:'dashed', sec:'STATE' },
+      { from:'R',  to:'CHW', label:'CHW notification (if registered)',      style:'dashed', sec:'STATE' },
+      { from:'R',  to:'P',   label:'status (T2)',                           style:'solid',  sec:'STATE' },
+      { from:'P',  to:'R',   label:'on_status (T2)',                        style:'dashed', sec:'STATE' },
+    ]
+  }
+};
+
+const SECTIONS = [
+  { id:'T1',    label:'T1 — Referral Coordination Contract', bg:'rgba(219,234,254,0.55)', border:'#93c5fd' },
+  { id:'T2',    label:'T2 — Appointment Booking',            bg:'rgba(209,250,229,0.55)', border:'#6ee7b7' },
+  { id:'STATE', label:'State Propagation',                   bg:'rgba(254,243,199,0.55)', border:'#fcd34d' },
+];
+
+let currentMode = 'dedicated';
+
+function render() {
+  const cfg = MODES[currentMode];
+  const svg = document.getElementById('diagram');
+  svg.innerHTML = '';
+
+  const W = 900;
+  const PTOP = 14;
+  const BOX_H = 52;
+  const LIFE_START = PTOP + BOX_H + 10;
+  const SEC_PAD = 14;
+  const SEC_HEAD = 20;
+  const MSG_GAP = 34;
+  const participants = cfg.participants;
+  const n = participants.length;
+  const colW = Math.floor((W - 20) / n);
+  const xs = participants.map((_, i) => 10 + colW * i + colW / 2);
+  const xByID = {};
+  participants.forEach((p, i) => xByID[p.id] = xs[i]);
+
+  const msgs = cfg.messages;
+  const secGroups = { T1:[], T2:[], STATE:[] };
+  msgs.forEach(m => secGroups[m.sec].push(m));
+  const msgY = new Array(msgs.length);
+  let cy = LIFE_START + 8;
+  const secBounds = {};
+  SECTIONS.forEach(sec => {
+    const sy = cy;
+    cy += SEC_HEAD;
+    secGroups[sec.id].forEach(m => {
+      msgY[msgs.indexOf(m)] = cy + MSG_GAP * 0.45;
+      cy += MSG_GAP;
+    });
+    cy += SEC_PAD;
+    secBounds[sec.id] = { y: sy, h: cy - sy };
+  });
+  const H = cy + 10;
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.height = H + 'px';
+
+  const ns = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, text) {
+    const e = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  SECTIONS.forEach(sec => {
+    const b = secBounds[sec.id];
+    svg.appendChild(el('rect', { x:10, y:b.y, width:W-20, height:b.h, fill:sec.bg, stroke:sec.border, 'stroke-width':1, rx:4 }));
+    svg.appendChild(el('text', { x:18, y:b.y+14, 'font-size':10.5, 'font-weight':700, fill:'#374151' }, sec.label));
+  });
+
+  participants.forEach((p, i) => {
+    svg.appendChild(el('line', { x1:xs[i], y1:LIFE_START, x2:xs[i], y2:H-8, stroke:'#d1d5db', 'stroke-width':1.2, 'stroke-dasharray':'4,3' }));
+  });
+
+  const BW = colW - 12;
+  participants.forEach((p, i) => {
+    const bx = xs[i] - BW/2;
+    svg.appendChild(el('rect', { x:bx, y:PTOP, width:BW, height:BOX_H, fill:p.fill, rx:6 }));
+    const words = p.label.split(' ');
+    let lines = [], cur = '';
+    const maxChars = Math.floor(BW / 6.5);
+    words.forEach(w => {
+      if ((cur + ' ' + w).trim().length > maxChars && cur.length > 0) { lines.push(cur.trim()); cur = w; }
+      else cur = (cur + ' ' + w).trim();
+    });
+    if (cur) lines.push(cur);
+    const lineH = 13;
+    const subExists = p.sub.length > 0;
+    const labelStartY = PTOP + (subExists ? 10 : (BOX_H - lines.length * lineH) / 2 + lineH - 2);
+    lines.forEach((line, li) => {
+      svg.appendChild(el('text', { x:xs[i], y:labelStartY + li*lineH, 'text-anchor':'middle', 'font-size':10.5, 'font-weight':700, fill:'white' }, line));
+    });
+    if (p.sub) {
+      svg.appendChild(el('text', { x:xs[i], y:PTOP+BOX_H-7, 'text-anchor':'middle', 'font-size':8.5, fill:'rgba(255,255,255,0.82)' }, p.sub));
+    }
+  });
+
+  msgs.forEach((msg, i) => {
+    const y = msgY[i];
+    if (msg.style === 'self') {
+      const x = xByID[msg.from];
+      const lw = Math.min(colW * 0.45, 55);
+      svg.appendChild(el('path', { d:`M${x},${y-6} C${x+lw},${y-6} ${x+lw},${y+6} ${x},${y+6}`, fill:'none', stroke:'#7c3aed', 'stroke-width':1.8, 'stroke-dasharray':'4,3' }));
+      svg.appendChild(el('polygon', { points:`${x},${y+6} ${x-6},${y} ${x+6},${y}`, fill:'#7c3aed' }));
+      const noteX = x + lw + 4;
+      const noteW = Math.min(colW * 1.2, 220);
+      svg.appendChild(el('rect', { x:noteX-2, y:y-10, width:noteW, height:20, fill:'#ede9fe', rx:3 }));
+      svg.appendChild(el('text', { x:noteX+4, y:y+4, 'font-size':9.5, fill:'#5b21b6', 'font-style':'italic' }, msg.label));
+      return;
+    }
+    const x1 = xByID[msg.from], x2 = xByID[msg.to];
+    const right = x2 > x1;
+    const pad = 6;
+    const lx1 = x1 + (right ? pad : -pad);
+    const lx2 = x2 + (right ? -pad : pad);
+    const color = msg.style === 'dashed' ? '#4b5563' : '#1e40af';
+    const sw = msg.style === 'dashed' ? 1.5 : 2;
+    const da = msg.style === 'dashed' ? '5,3' : 'none';
+    svg.appendChild(el('line', { x1:lx1, y1:y, x2:lx2, y2:y, stroke:color, 'stroke-width':sw, 'stroke-dasharray':da }));
+    const ax = lx2, dir = right ? 1 : -1;
+    svg.appendChild(el('polygon', { points:`${ax},${y} ${ax-dir*8},${y-4} ${ax-dir*8},${y+4}`, fill:color }));
+    const midX = (lx1 + lx2) / 2;
+    const labelY = y - 5;
+    const approxW = msg.label.length * 5.8;
+    svg.appendChild(el('rect', { x:midX-approxW/2-2, y:labelY-11, width:approxW+4, height:13, fill:'rgba(255,255,255,0.85)', rx:2 }));
+    svg.appendChild(el('text', { x:midX, y:labelY, 'text-anchor':'middle', 'font-size':9.5, fill:'#111827' }, msg.label));
+  });
+
+  document.getElementById('desc-text').innerHTML =
+    cfg.description + (cfg.changeNote ? `<div class="change-note">↳ ${cfg.changeNote}</div>` : '');
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === currentMode);
+  });
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => { currentMode = btn.dataset.mode; render(); });
+});
+
+render();
+</script>
+</body>
+</html>
